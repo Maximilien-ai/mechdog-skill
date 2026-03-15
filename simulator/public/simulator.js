@@ -23,6 +23,10 @@ let targetPosition = { x: 400, y: 300 };
 let targetRotation = 0;
 let animationProgress = 0;
 
+// Drag state
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+
 // Connect to WebSocket
 function connect() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -259,6 +263,137 @@ async function sendCommand(type, params) {
         console.log('Command sent:', result);
     } catch (error) {
         console.error('Error sending command:', error);
+    }
+}
+
+// Mouse/touch interaction for dragging robot
+function isPointInDog(x, y) {
+    const dx = x - dogState.position.x;
+    const dy = y - dogState.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < 50; // 50px radius hit area
+}
+
+function getMousePos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+    };
+}
+
+// Mouse events
+canvas.addEventListener('mousedown', (e) => {
+    const pos = getMousePos(canvas, e);
+
+    if (isPointInDog(pos.x, pos.y)) {
+        isDragging = true;
+        dragOffset.x = pos.x - dogState.position.x;
+        dragOffset.y = pos.y - dogState.position.y;
+        canvas.style.cursor = 'grabbing';
+    }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    const pos = getMousePos(canvas, e);
+
+    if (isDragging) {
+        // Update both current and target position for immediate response
+        const newX = pos.x - dragOffset.x;
+        const newY = pos.y - dragOffset.y;
+
+        // Constrain to canvas
+        const constrainedX = Math.max(50, Math.min(canvas.width - 50, newX));
+        const constrainedY = Math.max(50, Math.min(canvas.height - 50, newY));
+
+        dogState.position.x = constrainedX;
+        dogState.position.y = constrainedY;
+        targetPosition.x = constrainedX;
+        targetPosition.y = constrainedY;
+
+        // Update status display
+        updateStatusDisplay();
+    } else {
+        // Change cursor when hovering over dog
+        canvas.style.cursor = isPointInDog(pos.x, pos.y) ? 'grab' : 'default';
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        canvas.style.cursor = 'grab';
+
+        // Send position update to server
+        sendPositionUpdate();
+    }
+});
+
+canvas.addEventListener('mouseleave', () => {
+    if (isDragging) {
+        isDragging = false;
+        canvas.style.cursor = 'default';
+        sendPositionUpdate();
+    }
+});
+
+// Touch events for mobile
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const pos = getMousePos(canvas, touch);
+
+    if (isPointInDog(pos.x, pos.y)) {
+        isDragging = true;
+        dragOffset.x = pos.x - dogState.position.x;
+        dragOffset.y = pos.y - dogState.position.y;
+    }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (isDragging) {
+        const touch = e.touches[0];
+        const pos = getMousePos(canvas, touch);
+
+        const newX = pos.x - dragOffset.x;
+        const newY = pos.y - dragOffset.y;
+
+        const constrainedX = Math.max(50, Math.min(canvas.width - 50, newX));
+        const constrainedY = Math.max(50, Math.min(canvas.height - 50, newY));
+
+        dogState.position.x = constrainedX;
+        dogState.position.y = constrainedY;
+        targetPosition.x = constrainedX;
+        targetPosition.y = constrainedY;
+
+        updateStatusDisplay();
+    }
+});
+
+canvas.addEventListener('touchend', () => {
+    if (isDragging) {
+        isDragging = false;
+        sendPositionUpdate();
+    }
+});
+
+// Send position update to server
+async function sendPositionUpdate() {
+    try {
+        await fetch('/position', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                position: dogState.position,
+                rotation: dogState.rotation
+            })
+        });
+    } catch (error) {
+        console.error('Error updating position:', error);
     }
 }
 

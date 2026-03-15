@@ -8,6 +8,8 @@ A beautiful web-based simulator with real-time visualization of the MechDog robo
 - 🔌 **WebSocket Updates** - Live updates as commands are sent
 - 📊 **Status Dashboard** - Position, rotation, battery, last command
 - 🎮 **Manual Controls** - Test commands with on-screen buttons
+- 🖱️ **Drag & Drop** - Click and drag the robot to reposition it!
+- 📱 **Touch Support** - Works on mobile devices too
 - 🌐 **HTTP API** - Drop-in replacement for real MechDog
 
 ## Quick Start
@@ -101,6 +103,20 @@ SIMULATOR_PORT=8080  # Default port
 └─────────────────┘
 ```
 
+## Interactive Features
+
+### Drag & Drop Robot
+- **Click and drag** the robot anywhere on the canvas
+- **Hover** over the robot to see the grab cursor
+- Works with **mouse** and **touch** (mobile-friendly)
+- Position updates are synchronized with the server
+- Boundaries keep the robot within the canvas
+
+### Manual Controls
+- Use on-screen buttons for quick testing
+- Forward, Left, Right movements
+- Sit, Wave, Dance actions
+
 ## Customization
 
 Edit `public/simulator.js` to customize:
@@ -108,6 +124,7 @@ Edit `public/simulator.js` to customize:
 - Canvas size
 - Animation speed
 - Trail effects
+- Drag sensitivity
 
 ## Tips
 

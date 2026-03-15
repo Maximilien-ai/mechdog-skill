@@ -138,6 +138,33 @@ app.post('/action', (req, res) => {
   });
 });
 
+app.post('/position', (req, res) => {
+  const { position, rotation } = req.body;
+
+  console.log(`📍 Position update: (${Math.round(position.x)}, ${Math.round(position.y)}), rotation: ${Math.round(rotation)}°`);
+
+  // Update state
+  state.position = position;
+  if (rotation !== undefined) {
+    state.rotation = rotation;
+  }
+  state.lastCommand = 'manual position';
+  state.timestamp = Date.now();
+
+  broadcast({
+    type: 'position_update',
+    position,
+    rotation,
+    state
+  });
+
+  res.json({
+    status: 'ok',
+    position: state.position,
+    rotation: state.rotation
+  });
+});
+
 app.get('/status', (req, res) => {
   res.json({
     status: 'ok',

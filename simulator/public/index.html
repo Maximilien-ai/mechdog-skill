@@ -40,8 +40,16 @@
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 0.9em;
+        }
+
+        .interaction-hint {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 0.85em;
+            font-style: italic;
         }
 
         .canvas-container {
@@ -56,6 +64,10 @@
             display: block;
             width: 100%;
             height: auto;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
         .status-panel {
@@ -165,6 +177,7 @@
     <div class="container">
         <h1>🤖 MechDog Visual Simulator</h1>
         <p class="subtitle">Real-time visualization of robot movements</p>
+        <p class="interaction-hint">💡 Tip: Click and drag the robot to move it around!</p>
 
         <div class="canvas-container">
             <canvas id="mechdog-canvas" width="800" height="600"></canvas>
