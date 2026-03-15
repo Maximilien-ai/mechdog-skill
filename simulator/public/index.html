@@ -181,6 +181,105 @@
         .control-btn:active {
             transform: translateY(0);
         }
+
+        .camera-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .camera-section.floating {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            margin-top: 0;
+            padding: 10px;
+            max-width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .camera-section.floating h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .camera-section.floating p {
+            font-size: 0.75em;
+            margin-bottom: 10px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            background: #000;
+        }
+
+        .camera-section.floating .camera-preview {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .camera-section.floating .camera-controls {
+            gap: 5px;
+        }
+
+        .camera-section.floating .control-btn {
+            font-size: 0.8em;
+            padding: 8px 6px;
+        }
+
+        .camera-status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .camera-section.floating .camera-status {
+            font-size: 0.75em;
+        }
+
+        .camera-off {
+            display: none;
+        }
+
+        .toggle-float-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .toggle-float-btn:hover {
+            background: #764ba2;
+        }
+
+        video {
+            transform: scaleX(-1); /* Mirror for selfie view */
+        }
     </style>
 </head>
 <body>
@@ -245,8 +344,39 @@
             <button class="control-btn" style="background: #6c757d;" onclick="removeBall('blue')">❌ Remove Blue</button>
             <button class="control-btn" style="background: #6c757d;" onclick="removeBall('green')">❌ Remove Green</button>
         </div>
+
+        <div class="camera-section" id="cameraSection">
+            <h3 style="color: #333; text-align: center; margin-bottom: 10px;">📷 Simulated Camera</h3>
+            <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 15px;">
+                Uses your laptop webcam to simulate MechDog's ESP32-S3 camera
+            </p>
+
+            <video id="cameraPreview" class="camera-preview" autoplay playsinline></video>
+            <canvas id="cameraCanvas" style="display: none;"></canvas>
+
+            <div class="camera-controls">
+                <button class="control-btn" onclick="startCamera()" id="startCameraBtn">
+                    📹 Start
+                </button>
+                <button class="control-btn" style="background: #dc3545;" onclick="stopCamera()" id="stopCameraBtn" disabled>
+                    ⏹️ Stop
+                </button>
+                <button class="control-btn" style="background: #28a745;" onclick="captureFrame()" id="captureBtn" disabled>
+                    📸 Capture
+                </button>
+            </div>
+
+            <button class="toggle-float-btn" onclick="toggleFloat()" id="toggleFloatBtn">
+                📌 Float Camera
+            </button>
+
+            <div class="camera-status" id="cameraStatus">
+                Camera not started. Click "Start" to enable vision testing.<br>
+                <small style="color: #999;">Chrome recommended (Safari may have permission issues)</small>
+            </div>
+        </div>
     </div>
 
-    <script src="simulator.js?v=5"></script>
+    <script src="simulator.js?v=7"></script>
 </body>
 </html>

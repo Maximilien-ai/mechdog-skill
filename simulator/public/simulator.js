@@ -559,6 +559,122 @@ function getBallAtPosition(x, y) {
     return null;
 }
 
+// Camera functionality
+let cameraStream = null;
+let lastCapturedImage = null;
+
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user' // Front camera
+            }
+        });
+
+        const videoElement = document.getElementById('cameraPreview');
+        videoElement.srcObject = stream;
+        cameraStream = stream;
+
+        // Update UI
+        document.getElementById('startCameraBtn').disabled = true;
+        document.getElementById('stopCameraBtn').disabled = false;
+        document.getElementById('captureBtn').disabled = false;
+        document.getElementById('cameraStatus').textContent = '✅ Camera active - ready for vision testing';
+
+        console.log('Camera started successfully');
+    } catch (error) {
+        console.error('Camera error:', error);
+        document.getElementById('cameraStatus').textContent = `❌ Camera error: ${error.message}. Grant camera permissions and try again.`;
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+
+        const videoElement = document.getElementById('cameraPreview');
+        videoElement.srcObject = null;
+
+        // Update UI
+        document.getElementById('startCameraBtn').disabled = false;
+        document.getElementById('stopCameraBtn').disabled = true;
+        document.getElementById('captureBtn').disabled = true;
+        document.getElementById('cameraStatus').textContent = 'Camera stopped.';
+
+        console.log('Camera stopped');
+    }
+}
+
+async function captureFrame() {
+    if (!cameraStream) {
+        alert('Start camera first!');
+        return;
+    }
+
+    const videoElement = document.getElementById('cameraPreview');
+    const canvasElement = document.getElementById('cameraCanvas');
+    const ctx = canvasElement.getContext('2d');
+
+    // Set canvas size to match video
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+
+    // Draw current video frame to canvas (flip back to normal orientation)
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(videoElement, -canvasElement.width, 0, canvasElement.width, canvasElement.height);
+    ctx.restore();
+
+    // Convert to blob (JPEG)
+    canvasElement.toBlob(async (blob) => {
+        lastCapturedImage = blob;
+
+        // Send to server
+        const formData = new FormData();
+        formData.append('image', blob, 'capture.jpg');
+
+        try {
+            const response = await fetch('/camera/capture', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                document.getElementById('cameraStatus').textContent = `📸 Frame captured! (${Math.round(blob.size / 1024)}KB) - Ready for VLM processing`;
+                console.log('Frame captured and sent to server');
+            } else {
+                document.getElementById('cameraStatus').textContent = '❌ Capture failed - server error';
+            }
+        } catch (error) {
+            console.error('Capture error:', error);
+            document.getElementById('cameraStatus').textContent = `❌ Capture failed: ${error.message}`;
+        }
+    }, 'image/jpeg', 0.9);
+}
+
+// Toggle floating camera
+let isFloating = false;
+
+function toggleFloat() {
+    const cameraSection = document.getElementById('cameraSection');
+    const toggleBtn = document.getElementById('toggleFloatBtn');
+
+    isFloating = !isFloating;
+
+    if (isFloating) {
+        cameraSection.classList.add('floating');
+        toggleBtn.textContent = '📍 Dock Camera';
+    } else {
+        cameraSection.classList.remove('floating');
+        toggleBtn.textContent = '📌 Float Camera';
+    }
+
+    console.log(`Camera ${isFloating ? 'floating' : 'docked'}`);
+}
+
 // Initialize
 connect();
 animate();

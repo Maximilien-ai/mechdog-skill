@@ -7,9 +7,11 @@
 import express from 'express';
 import { WebSocketServer } from 'ws';
 import bodyParser from 'body-parser';
+import multer from 'multer';
 import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +43,15 @@ const server = createServer(app);
 
 // WebSocket server for real-time updates
 const wss = new WebSocketServer({ server });
+
+// Multer for handling file uploads (camera captures)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
+});
+
+// Store last captured image
+let lastCapturedImage: Buffer | null = null;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -177,12 +188,42 @@ app.get('/status', (req, res) => {
   });
 });
 
-app.get('/camera/capture', (req, res) => {
+// Camera capture - POST for receiving webcam image from browser
+app.post('/camera/capture', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'No image uploaded'
+    });
+  }
+
+  lastCapturedImage = req.file.buffer;
+
+  console.log(`📸 Camera capture received: ${Math.round(req.file.size / 1024)}KB (${req.file.mimetype})`);
+
   res.json({
     status: 'ok',
-    message: 'Camera capture simulated',
-    note: 'Visual simulator shows camera view in canvas'
+    message: 'Camera frame captured',
+    size: req.file.size,
+    timestamp: Date.now()
   });
+});
+
+// Camera capture - GET for retrieving last captured image (for vision.py)
+app.get('/camera/capture', (req, res) => {
+  if (!lastCapturedImage) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'No frame captured yet. Use the simulator camera controls to capture a frame first.',
+      note: 'Click "Start Camera" then "Capture Frame" in the simulator UI'
+    });
+  }
+
+  console.log(`📷 Serving captured image: ${Math.round(lastCapturedImage.length / 1024)}KB`);
+
+  res.setHeader('Content-Type', 'image/jpeg');
+  res.setHeader('Content-Length', lastCapturedImage.length);
+  res.send(lastCapturedImage);
 });
 
 // WebSocket connection handling

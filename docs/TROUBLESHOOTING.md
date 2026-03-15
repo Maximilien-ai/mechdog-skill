@@ -512,6 +512,89 @@ bridge/.venv/bin/python bridge/bridge.py --cmd action --ip localhost:3000 --name
 
 ---
 
+## Camera Issues (Simulator)
+
+### ❌ "Camera error: The request is not allowed" or permission denied
+
+**Problem:** Browser won't allow camera access.
+
+**Solutions:**
+
+**Chrome (Recommended):**
+1. Click the camera icon or lock icon in address bar
+2. Find "Camera" permission
+3. Set to "Allow"
+4. Refresh page (`Cmd+Shift+R`)
+
+**Safari:**
+1. **Method 1 - In-Browser:**
+   - Click the "aA" button or camera icon in address bar
+   - Select "Website Settings..."
+   - Set Camera to "Allow"
+   - Refresh page
+
+2. **Method 2 - Safari Settings:**
+   - Safari menu → Settings → Websites tab
+   - Click "Camera" in left sidebar
+   - Find `localhost` and set to "Allow"
+   - Refresh page
+
+3. **Method 3 - System Preferences:**
+   - Apple menu → System Settings → Privacy & Security
+   - Click "Camera"
+   - Enable Safari
+   - Refresh page
+
+**Firefox:**
+1. Click lock icon in address bar
+2. Click ">" next to "Connection secure"
+3. Find Camera permissions
+4. Remove block and allow
+5. Refresh page
+
+**Important Notes:**
+- **Use `localhost:3000`** not `127.0.0.1:3000` (camera API requires localhost or HTTPS)
+- **Chrome has best support** - if Safari fails, try Chrome
+- **Hard refresh after changing permissions:** `Cmd+Shift+R` (Mac) or `Ctrl+Shift+F5` (Windows)
+
+### ❌ Camera preview is black or frozen
+
+**Problem:** Camera feed not displaying.
+
+**Solutions:**
+1. **Check if another app is using camera:** Close Zoom, Teams, FaceTime, etc.
+2. **Try different camera:** If you have multiple cameras, unplug external ones
+3. **Restart browser:** Quit and reopen browser completely
+4. **Check System Preferences:** Make sure browser has camera access (see above)
+
+### ❌ Camera works but capture fails
+
+**Problem:** Can see preview but "Capture Frame" doesn't work.
+
+**Diagnosis:**
+```bash
+# Check browser console (F12 → Console tab) for errors
+# Check simulator logs
+tail -f simulator.log
+```
+
+**Solutions:**
+1. **Make sure camera is started:** Click "Start" first
+2. **Wait for camera to initialize:** Give it 2-3 seconds after starting
+3. **Check network:** Make sure simulator server is running
+4. **Test server:** `curl http://localhost:3000/status`
+
+### ❌ Floating camera option
+
+**Feature:** Camera can be floating (top-right overlay) or docked (bottom section).
+
+**Usage:**
+1. Click **"📌 Float Camera"** to make it float over the canvas
+2. Click **"📍 Dock Camera"** to move it back to bottom
+3. Floating mode is great for vision testing while watching robot movements
+
+---
+
 ## Debug Tools
 
 ### Enable verbose logging
