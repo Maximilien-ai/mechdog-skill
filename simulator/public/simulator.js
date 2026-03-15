@@ -77,6 +77,11 @@ function handleServerUpdate(data) {
 
     if (data.type === 'action') {
         showAction(data.action);
+        showEmojiForAction(data.action);
+    }
+
+    if (data.type === 'move') {
+        showEmojiForMove(data.direction);
     }
 }
 
@@ -244,6 +249,9 @@ function animate() {
     // Update balls physics
     balls.forEach(ball => ball.update());
 
+    // Update floating emojis
+    updateFloatingEmojis();
+
     // Clear and redraw
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -257,8 +265,11 @@ function animate() {
     // Draw balls (behind dog)
     balls.forEach(ball => ball.draw(ctx));
 
-    // Draw dog on top
+    // Draw dog
     drawDog();
+
+    // Draw floating emojis (on top of everything)
+    drawFloatingEmojis(ctx);
 
     requestAnimationFrame(animate);
 }
@@ -691,6 +702,97 @@ function toggleSize() {
     }
 
     console.log(`Camera size: ${isLarge ? 'large' : 'small'}`);
+}
+
+// Floating emoji system
+const floatingEmojis = [];
+
+class FloatingEmoji {
+    constructor(emoji, x, y) {
+        this.emoji = emoji;
+        this.x = x;
+        this.y = y;
+        this.vy = -2; // Float upward
+        this.vx = (Math.random() - 0.5) * 1; // Slight horizontal drift
+        this.opacity = 1;
+        this.lifetime = 0;
+        this.maxLifetime = 120; // 2 seconds at 60fps
+        this.size = 32;
+    }
+
+    update() {
+        this.lifetime++;
+        this.y += this.vy;
+        this.x += this.vx;
+
+        // Fade out in last 30 frames
+        if (this.lifetime > this.maxLifetime - 30) {
+            this.opacity = (this.maxLifetime - this.lifetime) / 30;
+        }
+
+        return this.lifetime < this.maxLifetime;
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.font = `${this.size}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.emoji, this.x, this.y);
+        ctx.restore();
+    }
+}
+
+function showEmojiForAction(action) {
+    const emojiMap = {
+        sit: '🪑',
+        stand: '🧍',
+        wave: '👋',
+        shake: '🤝',
+        dance: '💃',
+        balance: '🤸'
+    };
+
+    const emoji = emojiMap[action] || '✨';
+    spawnFloatingEmoji(emoji);
+}
+
+function showEmojiForMove(direction) {
+    const emojiMap = {
+        forward: '⬆️',
+        backward: '⬇️',
+        left: '⬅️',
+        right: '➡️',
+        stop: '🛑'
+    };
+
+    const emoji = emojiMap[direction] || '🚶';
+    spawnFloatingEmoji(emoji);
+}
+
+function spawnFloatingEmoji(emoji) {
+    // Spawn near robot position
+    const x = dogState.position.x + (Math.random() - 0.5) * 40;
+    const y = dogState.position.y - 30; // Above robot
+
+    const floater = new FloatingEmoji(emoji, x, y);
+    floatingEmojis.push(floater);
+
+    console.log(`Spawned emoji: ${emoji}`);
+}
+
+function updateFloatingEmojis() {
+    // Update all emojis and remove dead ones
+    for (let i = floatingEmojis.length - 1; i >= 0; i--) {
+        if (!floatingEmojis[i].update()) {
+            floatingEmojis.splice(i, 1);
+        }
+    }
+}
+
+function drawFloatingEmojis(ctx) {
+    floatingEmojis.forEach(emoji => emoji.draw(ctx));
 }
 
 // Auto-float camera on page load
