@@ -149,3 +149,7 @@ __pycache__/
 /tmp/
 *.jpg
 *.png
+
+# Process management
+.simulator.pid
+simulator.log

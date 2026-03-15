@@ -62,6 +62,11 @@ lint_typescript() {
     print_status "Running eslint on skills/**/*.ts"
     npx eslint skills/**/*.ts --ext .ts || true
 
+    if [ -f "simulator/server.ts" ]; then
+        print_status "Running eslint on simulator/*.ts"
+        npx eslint simulator/*.ts --ext .ts || true
+    fi
+
     print_status "TypeScript linting complete"
 }
 

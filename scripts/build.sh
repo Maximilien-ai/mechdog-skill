@@ -62,11 +62,20 @@ setup_python() {
 setup_typescript() {
     print_header "Setting up TypeScript environment"
 
+    # Root project
     if [ ! -d "node_modules" ]; then
-        print_status "Installing Node.js dependencies"
+        print_status "Installing Node.js dependencies (root)"
         npm install
     else
-        print_status "Node modules already installed"
+        print_status "Node modules already installed (root)"
+    fi
+
+    # Simulator
+    if [ ! -d "simulator/node_modules" ]; then
+        print_status "Installing Node.js dependencies (simulator)"
+        cd simulator && npm install && cd ..
+    else
+        print_status "Node modules already installed (simulator)"
     fi
 
     print_status "TypeScript setup complete"
@@ -80,8 +89,11 @@ build_typescript() {
         exit 1
     fi
 
-    print_status "Compiling TypeScript..."
+    print_status "Compiling TypeScript (skills)..."
     npm run build
+
+    # Simulator doesn't need compilation (tsx runs it directly)
+    print_status "Simulator ready (runs with tsx)"
 
     print_status "TypeScript build complete"
 }
@@ -91,6 +103,8 @@ clean_build() {
 
     rm -rf dist/
     rm -rf node_modules/
+    rm -rf simulator/node_modules/
+    rm -rf simulator/dist/
     rm -rf bridge/.venv/
     rm -rf bridge/__pycache__/
     find . -name "*.pyc" -delete

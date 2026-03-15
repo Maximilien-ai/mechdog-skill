@@ -92,9 +92,16 @@ test_check() {
 
     # Check node_modules exists
     if [ -d "node_modules" ]; then
-        print_status "✓ Node modules found"
+        print_status "✓ Node modules found (root)"
     else
-        print_warning "⚠ Node modules not found. Run npm install"
+        print_warning "⚠ Node modules not found (root). Run npm install"
+    fi
+
+    # Check simulator node_modules
+    if [ -d "simulator/node_modules" ]; then
+        print_status "✓ Node modules found (simulator)"
+    else
+        print_warning "⚠ Simulator node modules not found. Run ./build.sh setup"
     fi
 
     # Test Python bridge help
@@ -102,6 +109,11 @@ test_check() {
         print_status "Testing Python bridge --help"
         bridge/.venv/bin/python bridge/bridge.py --help > /dev/null
         print_status "✓ Python bridge CLI working"
+    fi
+
+    # Check simulator TypeScript
+    if [ -f "simulator/server.ts" ]; then
+        print_status "✓ Simulator found"
     fi
 
     print_status "Health check complete"
@@ -147,9 +159,15 @@ test_skill() {
         exit 1
     fi
 
-    # Type check TypeScript
+    # Type check TypeScript (skills)
     print_status "Type-checking TypeScript skill"
     npx tsc --noEmit
+
+    # Type check TypeScript (simulator)
+    if [ -f "simulator/tsconfig.json" ]; then
+        print_status "Type-checking TypeScript simulator"
+        cd simulator && npx tsc --noEmit && cd ..
+    fi
 
     print_status "Skill tests complete"
 }

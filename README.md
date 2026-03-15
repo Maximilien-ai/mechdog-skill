@@ -35,21 +35,34 @@ cp .env.example .env
 # Edit .env and set your MechDog's IP address
 ```
 
-### 3. Find Your MechDog IP
+### 3. Run the Visual Simulator (Optional)
+
+```bash
+# Start the visual simulator
+cd simulator
+npm run dev
+# Open http://localhost:3000 in browser
+```
+
+See your robot move in real-time with a beautiful canvas visualization!
+
+### 4. Find Your MechDog IP (For Real Hardware)
 
 Power on your MechDog and check your WiFi router's connected devices, or check the MechDog's display if available.
 
-### 4. Test the Bridge
+### 5. Test the Bridge
 
 ```bash
-# Test movement (replace IP with your MechDog's IP)
-bridge/.venv/bin/python bridge/bridge.py --cmd move --ip 192.168.1.100 --dir forward --ms 2000
+# With simulator (no hardware needed)
+bridge/.venv/bin/python bridge/bridge.py --cmd move --ip localhost:3000 --dir forward --ms 2000
+bridge/.venv/bin/python bridge/bridge.py --cmd action --ip localhost:3000 --name dance
 
-# Test action
+# With real hardware (replace IP)
+bridge/.venv/bin/python bridge/bridge.py --cmd move --ip 192.168.1.100 --dir forward --ms 2000
 bridge/.venv/bin/python bridge/bridge.py --cmd action --ip 192.168.1.100 --name sit
 ```
 
-### 5. Use with OpenClaw
+### 6. Use with OpenClaw
 
 Add this skill to your OpenClaw configuration and control via natural language:
 
@@ -88,21 +101,37 @@ MechDog ESP32 WiFi Controller
 
 ```
 mechdog-skill/
-├── skills/
-│   └── mechdog/
-│       ├── index.ts       # OpenClaw skill implementation
-│       └── skill.md       # Skill capabilities description
-├── bridge/
-│   ├── bridge.py          # Python→ESP32 HTTP bridge
-│   ├── pyproject.toml     # Python dependencies
+├── skills/mechdog/        # OpenClaw TypeScript skill
+│   ├── index.ts           # Skill implementation
+│   └── skill.md           # Capabilities description
+├── bridge/                # Python ESP32 bridge
+│   ├── bridge.py          # HTTP client
+│   ├── vision.py          # VLM integration (stretch)
 │   └── .venv/             # Python virtual environment
-├── docs/
-│   └── MECHDOG_HACKATHON.md  # Hackathon plan
+├── simulator/             # 🆕 Visual web simulator
+│   ├── server.ts          # Express + WebSocket server
+│   └── public/            # Web UI (canvas visualization)
+│       ├── index.html     # UI layout
+│       └── simulator.js   # Canvas rendering
+├── docs/                  # Documentation
+│   ├── SIMULATOR.md       # Simulator guide
+│   ├── OPENCLAW_INTEGRATION.md
+│   └── ESP32_API.md
+├── build.sh, test.sh, lint.sh  # Build automation
 └── package.json           # Node.js configuration
 ```
 
+## Features
+
+- ✅ **Python Bridge** - HTTP client for MechDog ESP32 API
+- ✅ **OpenClaw Skill** - Natural language control interface
+- ✅ **Visual Simulator** - 🆕 Real-time canvas visualization with WebSocket
+- ✅ **Build Tools** - Automated scripts for building, testing, linting
+- ✅ **Complete Docs** - Integration guides and API reference
+
 ## Stretch Goals
 
+- [x] Visual simulator with real-time updates
 - [ ] Vision integration (ESP32-S3 camera → VLM)
 - [ ] Nebius GPU-accelerated vision inference
 - [ ] Vision-guided navigation
