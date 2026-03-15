@@ -1,5 +1,113 @@
 # Release Notes
 
+## v0.1.1 - Simulator Camera & Visual Enhancements (March 15, 2026)
+
+### 🎥 Major New Feature: Webcam Camera Simulation
+
+**Simulator Camera Integration:**
+- Use laptop webcam to simulate MechDog's ESP32-S3 camera
+- Live camera preview with start/stop/capture controls
+- Auto-floats to top-right corner (compact overlay)
+- Resize option: toggle between small (200px) and large (400px)
+- POST `/camera/capture` endpoint to receive webcam frames
+- GET `/camera/capture` endpoint to serve last captured frame
+- Perfect for testing Nebius VLM integration without hardware!
+
+**Camera Features:**
+- Browser permissions handling with troubleshooting docs
+- Chrome recommended (Safari has permission issues)
+- Touch support for mobile testing
+- Dock/float toggle for flexible viewing
+
+### 🎊 Floating Emoji Animations
+
+**Visual Command Feedback:**
+- Emojis spawn and float upward when commands execute
+- Action emojis: 🪑 sit, 🧍 stand, 👋 wave, 🤝 shake, 💃 dance, 🤸 balance
+- Movement emojis: ⬆️ forward, ⬇️ backward, ⬅️ left, ➡️ right, 🛑 stop
+- Pop-in animation (starts small, grows to full size)
+- White circular background for visibility
+- Fully opaque (100% visible) with smooth fade-out
+- Like live chat reactions!
+
+### 📋 Demo Scripts & Documentation
+
+**New Test Scripts:**
+- `bridge/demo/test_camera.sh` - Test camera capture, validate JPEG, auto-open image
+- `bridge/demo/test_vision.sh` - Test VLM integration (Nebius/Anthropic/mock)
+- `bridge/demo/README.md` - Comprehensive demo guide with examples
+
+**Documentation Improvements:**
+- `docs/FAQ.md` - Extensive FAQ covering setup, connectivity, camera, vision, hackathon tips
+- `docs/TROUBLESHOOTING.md` - Detailed troubleshooting for all components
+- WiFi vs Bluetooth connectivity guide in `docs/ESP32_API.md`
+- Camera troubleshooting section (Safari vs Chrome permissions)
+- Updated README.md with camera features and Nebius stretch goals
+
+### 🎨 UI/UX Improvements
+
+**Compact Status Panel:**
+- Single-line layout: "POSITION 300, 300" instead of two lines
+- Reduced padding and font sizes (~40% smaller)
+- Right-aligned values for cleaner look
+- More screen space for canvas
+
+**Camera UX:**
+- Auto-floats on page load (no need to click)
+- Default size reduced to 200px (half previous size)
+- Description text hidden in floating mode
+- Perfect for vision testing while watching robot
+
+### 🛠️ Technical Improvements
+
+**Dependencies:**
+- Added `multer` for handling camera image uploads
+- Added `@types/multer` for TypeScript support
+
+**API Updates:**
+- POST `/camera/capture` with multipart/form-data support
+- Enhanced error messages for missing camera frames
+- Helpful hints for simulator camera setup
+
+**Cache Management:**
+- Version bumped to v=12 for reliable browser updates
+
+### 📊 Testing Workflow
+
+**Camera Testing:**
+```bash
+# 1. Start simulator
+./scripts/start.sh
+
+# 2. Open http://localhost:3000 in Chrome
+# 3. Camera auto-floats, click "Start"
+# 4. Click "Capture" to take snapshot
+
+# 5. Test capture
+bridge/demo/test_camera.sh localhost:3000
+
+# 6. Test vision (with API key)
+export ANTHROPIC_API_KEY=your-key
+bridge/demo/test_vision.sh localhost:3000
+```
+
+### 🎯 Ready for Nebius Stretch Goal #1
+
+**VLM Scene Understanding:**
+- Camera capture working ✅
+- Vision script ready (`bridge/vision.py`) ✅
+- Demo scripts for testing ✅
+- Documentation complete ✅
+- Just need Nebius API key!
+
+**Next Steps:**
+1. Test with real MechDog at venue
+2. Wire OpenClaw agent with skill
+3. Implement Nebius VLM integration
+4. Test vision-guided navigation
+
+---
+
 ## v0.1.0 - Initial Release (March 15, 2026)
 
 ### Core Features
