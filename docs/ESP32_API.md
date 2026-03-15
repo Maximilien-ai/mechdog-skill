@@ -115,11 +115,63 @@ Get current MechDog status and sensor readings.
 
 ### Network Configuration
 
-The MechDog creates a WiFi access point by default:
-- SSID: `MechDog-XXXX` (where XXXX is device ID)
-- Password: Check documentation or device sticker
+The MechDog ESP32 supports **WiFi connectivity** for HTTP API access. This is separate from Bluetooth connectivity.
 
-Or configure it to connect to your existing WiFi network via the companion app.
+#### WiFi vs Bluetooth
+
+| Feature | WiFi (HTTP API) | Bluetooth |
+|---------|----------------|-----------|
+| **Protocol** | HTTP over TCP/IP | Bluetooth Serial/BLE |
+| **Our Support** | ✅ **Yes** (this skill) | ❌ No |
+| **Use Case** | Network control, OpenClaw integration | Mobile app control |
+| **IP Address** | Yes (required) | No |
+| **Range** | ~30-50m | ~10m |
+| **Can Run Simultaneously** | ✅ Yes | ✅ Yes |
+
+**Important:** You need WiFi enabled to use this OpenClaw skill, even if you're also using Bluetooth for the mobile app.
+
+#### WiFi Setup Options
+
+**Option 1: Connect to MechDog's WiFi Access Point (Easiest)**
+
+The MechDog creates its own WiFi network by default:
+- **SSID:** `MechDog-XXXX` (where XXXX is device ID)
+- **Password:** Check documentation or device sticker
+- **Default IP:** `192.168.4.1` (standard ESP32 AP mode)
+
+Steps:
+1. Power on MechDog
+2. On your laptop, connect to WiFi network `MechDog-XXXX`
+3. Set `export MECHDOG_IP=192.168.4.1`
+4. Test: `curl http://192.168.4.1/status`
+
+**Option 2: Connect MechDog to Your Existing WiFi (Recommended for Hackathon)**
+
+Configure MechDog to join your existing WiFi network:
+1. Use the Hiwonder companion app to configure WiFi settings
+2. Connect MechDog to the same network as your laptop
+3. Find MechDog's IP address:
+   - Check your WiFi router's connected devices list
+   - Use the MechDog app to display current IP
+   - Or scan network: `nmap -sn 192.168.1.0/24` (may take time)
+4. Set `export MECHDOG_IP=<discovered_ip>`
+5. Test: `curl http://<discovered_ip>/status`
+
+**Troubleshooting WiFi Connection:**
+
+```bash
+# Test connectivity
+ping 192.168.4.1  # Or your MechDog's IP
+
+# Test HTTP API
+curl -v http://192.168.4.1/status
+
+# Common issues:
+# - MechDog not powered on → Turn on and wait 30 seconds for WiFi to initialize
+# - Wrong network → Make sure laptop is on same WiFi as MechDog
+# - Firewall blocking → Temporarily disable firewall for testing
+# - Wrong IP → Try 192.168.4.1 (AP mode) or check router
+```
 
 ### Timing Considerations
 

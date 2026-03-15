@@ -45,9 +45,32 @@ cd mechdog-skill
 
 Open http://localhost:3000 in your browser to see the robot move in real-time with a beautiful canvas visualization!
 
-### 4. Find Your MechDog IP (For Real Hardware)
+### 4. Connect to MechDog via WiFi (For Real Hardware)
 
-Power on your MechDog and check your WiFi router's connected devices, or check the MechDog's display if available.
+**Important:** This skill requires WiFi (not Bluetooth). WiFi and Bluetooth use different protocols.
+
+**Option A: Connect to MechDog's WiFi Network (Easiest)**
+```bash
+# 1. Power on MechDog
+# 2. Connect your laptop to WiFi: MechDog-XXXX
+# 3. Use default ESP32 AP mode IP
+export MECHDOG_IP=192.168.4.1
+
+# 4. Test connection
+curl http://192.168.4.1/status
+```
+
+**Option B: Connect MechDog to Your WiFi (Recommended)**
+```bash
+# 1. Use Hiwonder app to configure MechDog WiFi settings
+# 2. Connect MechDog to your network
+# 3. Find IP from router or app
+# 4. Set IP and test
+export MECHDOG_IP=192.168.1.100  # Replace with your IP
+curl http://192.168.1.100/status
+```
+
+See `docs/ESP32_API.md` for detailed WiFi setup and troubleshooting.
 
 ### 5. Test the Bridge
 
@@ -56,7 +79,11 @@ Power on your MechDog and check your WiFi router's connected devices, or check t
 bridge/.venv/bin/python bridge/bridge.py --cmd move --ip localhost:3000 --dir forward --ms 2000
 bridge/.venv/bin/python bridge/bridge.py --cmd action --ip localhost:3000 --name dance
 
-# With real hardware (replace IP)
+# With real hardware - Option A (MechDog AP mode)
+bridge/.venv/bin/python bridge/bridge.py --cmd move --ip 192.168.4.1 --dir forward --ms 2000
+bridge/.venv/bin/python bridge/bridge.py --cmd action --ip 192.168.4.1 --name sit
+
+# With real hardware - Option B (MechDog on your WiFi)
 bridge/.venv/bin/python bridge/bridge.py --cmd move --ip 192.168.1.100 --dir forward --ms 2000
 bridge/.venv/bin/python bridge/bridge.py --cmd action --ip 192.168.1.100 --name sit
 ```
@@ -69,11 +96,14 @@ bridge/.venv/bin/python bridge/bridge.py --cmd action --ip 192.168.1.100 --name 
 # For simulator (default)
 export MECHDOG_IP=localhost:3000
 
-# For real MechDog hardware (replace with your IP)
-export MECHDOG_IP=192.168.1.100
+# For real MechDog - Option A (MechDog AP mode - easiest)
+export MECHDOG_IP=192.168.4.1
+
+# For real MechDog - Option B (MechDog on your WiFi)
+export MECHDOG_IP=192.168.1.100  # Replace with your MechDog's actual IP
 
 # Add to shell profile to make permanent
-echo 'export MECHDOG_IP=localhost:3000' >> ~/.zshrc  # or ~/.bashrc
+echo 'export MECHDOG_IP=192.168.4.1' >> ~/.zshrc  # or ~/.bashrc
 ```
 
 ### 7. Use with OpenClaw
