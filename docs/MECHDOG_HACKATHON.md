@@ -142,15 +142,122 @@ Nebius GPU (VLM vision inference — camera feed → scene understanding)
 
 ---
 
-## 🚀 Stretch Goals
+## 🚀 Nebius Stretch Goals - Razzle the Audience!
 
-| Goal | Complexity | Wow Factor | Priority |
-|------|------------|------------|----------|
-| Vision-guided navigation (VLM + locomotion) | Medium | High | 🔥 High |
-| Voice wake word → OpenClaw → action | Low | Medium | Medium |
-| Nebius GPU inference for real-time scene understanding | Medium | High | 🔥 High |
-| Multi-agent: two OpenClaw instances coordinating | High | Very High | Low |
-| RosClaw bridge for ROS2 compatibility | High | Medium | Low |
+### 🎯 Goal 1: Real-time VLM Scene Understanding
+**Wow Factor:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 2-3 hours | **Priority:** 🔥 HIGHEST
+
+**What It Does:** MechDog camera → Nebius H100 GPU (Qwen2-VL-7B) → Natural language scene description
+
+**Demo:**
+```
+User: "MechDog, what do you see?"
+MechDog: "I see a red ball on the floor, a table to my left, and a person in a blue shirt."
+```
+
+**Implementation:**
+- Model: Qwen2-VL-7B-Instruct on Nebius H100
+- API: OpenAI-compatible Nebius inference API
+- Integration: Extend `look` tool in OpenClaw skill
+- Latency: Target <2 seconds
+
+**Quick Start:**
+```bash
+export NEBIUS_API_KEY="your-key"
+cd bridge
+python vision.py --ip $MECHDOG_IP --api-key $NEBIUS_API_KEY
+```
+
+---
+
+### 🧭 Goal 2: Vision-Guided Navigation
+**Wow Factor:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium-High | **Time:** 3-4 hours | **Priority:** 🔥 HIGH
+
+**What It Does:** Autonomous navigation toward objects using VLM + locomotion feedback loop
+
+**Demo:**
+```
+User: "Walk toward the red ball"
+MechDog:
+  1. Capture frame → VLM: "red ball at 30° right, 2m away"
+  2. Turn right 30° → move forward
+  3. Re-capture → adjust → repeat
+  4. "I've reached the red ball!"
+```
+
+**Implementation:**
+- VLM object detection prompts: "Identify [color] [object], estimate direction (left/right/center) and distance (near/medium/far)"
+- Control loop: Vision → decision → locomotion → repeat
+- New `navigate_to` tool in OpenClaw skill
+
+**Why Impressive:** Closes perception-action loop, real autonomous behavior
+
+---
+
+### 🤝 Goal 3: Multi-Agent Swarm Coordination
+**Wow Factor:** ⭐⭐⭐⭐⭐⭐ | **Complexity:** High | **Time:** 4-5 hours | **Priority:** STRETCH
+
+**What It Does:** Two OpenClaw agents (real MechDog + simulator) coordinate via shared Nebius LLM
+
+**Demo:**
+```
+User: "MechDogs, perform a synchronized dance"
+Agent 1: Sits
+Agent 2 (watching): Waves
+Agent 1: Stands and turns
+Both: "Dance complete!"
+```
+
+**Implementation:**
+- Two OpenClaw gateways (one per robot/simulator)
+- Shared Nebius LLM maintains conversation state
+- Coordination protocol: Agent 1 broadcasts → Nebius plans Agent 2 → repeat
+
+**Why Mind-Blowing:**
+- Multi-agent robotics is cutting-edge
+- Scalable to N agents
+- Zero-latency coordination via Nebius cloud GPU
+
+---
+
+### 📊 Implementation Priority
+
+| Goal | Priority | Rationale |
+|------|----------|-----------|
+| **Goal 1: VLM Scene Understanding** | 🔥 **Start Here** | Quick implementation, huge visual impact, directly showcases Nebius |
+| **Goal 2: Vision-Guided Navigation** | 🔥 **Next** | Builds on Goal 1, autonomous behavior is impressive |
+| **Goal 3: Multi-Agent Swarm** | 🌟 **If Time** | Extremely impressive but needs simulator + hardware setup |
+
+---
+
+### 🎬 Recommended Demo Sequence (if all 3 implemented)
+
+1. **Core demo:** "MechDog, walk forward 3 seconds"
+2. **Vision:** "What do you see?" → VLM describes scene (Goal 1)
+3. **Navigate:** "Walk toward the red ball" → autonomous navigation (Goal 2)
+4. **Swarm finale:** "Both MechDogs, synchronized dance" (Goal 3)
+
+**Total time:** 3-4 minutes | **Judge reaction:** 🤯🤯🤯
+
+---
+
+### ⚙️ Nebius Value Proposition
+
+All goals showcase:
+- H100 GPU power for VLM inference at scale
+- OpenAI-compatible API for seamless integration
+- Pay-per-use pricing perfect for hackathon POC
+- Low latency for real-time robotics
+- Scalability from 1 to N robots
+
+---
+
+### 🔮 Other Stretch Ideas (Lower Priority)
+
+| Goal | Complexity | Wow Factor | Notes |
+|------|------------|------------|-------|
+| Voice wake word → OpenClaw | Low | Medium | Hardware dependent |
+| RosClaw bridge for ROS2 | High | Medium | For post-hackathon |
 
 ---
 
