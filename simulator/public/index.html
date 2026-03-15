@@ -214,8 +214,22 @@
             <button class="control-btn" onclick="sendCommand('action', {name: 'wave'})">👋 Wave</button>
             <button class="control-btn" onclick="sendCommand('action', {name: 'dance'})">💃 Dance</button>
         </div>
+
+        <h3 style="margin-top: 30px; color: #333; text-align: center;">🎯 Vision Objects</h3>
+        <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 15px;">
+            Add colored balls for vision-guided navigation testing
+        </p>
+
+        <div class="controls">
+            <button class="control-btn" style="background: #dc3545;" onclick="addBall('red')">🔴 Add Red</button>
+            <button class="control-btn" style="background: #007bff;" onclick="addBall('blue')">🔵 Add Blue</button>
+            <button class="control-btn" style="background: #28a745;" onclick="addBall('green')">🟢 Add Green</button>
+            <button class="control-btn" style="background: #6c757d;" onclick="removeBall('red')">❌ Remove Red</button>
+            <button class="control-btn" style="background: #6c757d;" onclick="removeBall('blue')">❌ Remove Blue</button>
+            <button class="control-btn" style="background: #6c757d;" onclick="removeBall('green')">❌ Remove Green</button>
+        </div>
     </div>
 
-    <script src="simulator.js?v=2"></script>
+    <script src="simulator.js?v=3"></script>
 </body>
 </html>

@@ -26,6 +26,12 @@ let animationProgress = 0;
 // Drag state
 let isDragging = false;
 let dragOffset = { x: 0, y: 0 };
+let draggingBall = null;
+
+// Balls state
+let balls = [];
+const BALL_COLORS = ['red', 'blue', 'green'];
+const BALL_RADIUS = 12; // About 1/2 the size of dog's head
 
 // Connect to WebSocket
 function connect() {
@@ -235,6 +241,9 @@ function animate() {
     dogState.position.x = Math.max(50, Math.min(canvas.width - 50, dogState.position.x));
     dogState.position.y = Math.max(50, Math.min(canvas.height - 50, dogState.position.y));
 
+    // Update balls physics
+    balls.forEach(ball => ball.update());
+
     // Clear and redraw
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -244,6 +253,11 @@ function animate() {
 
     drawGrid();
     drawTrail();
+
+    // Draw balls (behind dog)
+    balls.forEach(ball => ball.draw(ctx));
+
+    // Draw dog on top
     drawDog();
 
     requestAnimationFrame(animate);
@@ -288,10 +302,23 @@ function getMousePos(canvas, evt) {
 // Mouse events
 canvas.addEventListener('mousedown', (e) => {
     const pos = getMousePos(canvas, e);
-    console.log('Mouse down at:', pos);
 
+    // Check if clicking on a ball first
+    const ball = getBallAtPosition(pos.x, pos.y);
+    if (ball) {
+        console.log(`Dragging ${ball.color} ball`);
+        draggingBall = ball;
+        dragOffset.x = pos.x - ball.x;
+        dragOffset.y = pos.y - ball.y;
+        ball.vx = 0; // Stop ball movement
+        ball.vy = 0;
+        canvas.style.cursor = 'grabbing';
+        return;
+    }
+
+    // Otherwise check if clicking on dog
     if (isPointInDog(pos.x, pos.y)) {
-        console.log('Dragging started!');
+        console.log('Dragging robot');
         isDragging = true;
         dragOffset.x = pos.x - dogState.position.x;
         dragOffset.y = pos.y - dogState.position.y;
@@ -302,12 +329,18 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mousemove', (e) => {
     const pos = getMousePos(canvas, e);
 
-    if (isDragging) {
-        // Update both current and target position for immediate response
+    if (draggingBall) {
+        // Drag ball
         const newX = pos.x - dragOffset.x;
         const newY = pos.y - dragOffset.y;
 
-        // Constrain to canvas
+        draggingBall.x = Math.max(draggingBall.radius, Math.min(canvas.width - draggingBall.radius, newX));
+        draggingBall.y = Math.max(draggingBall.radius, Math.min(canvas.height - draggingBall.radius, newY));
+    } else if (isDragging) {
+        // Drag robot
+        const newX = pos.x - dragOffset.x;
+        const newY = pos.y - dragOffset.y;
+
         const constrainedX = Math.max(50, Math.min(canvas.width - 50, newX));
         const constrainedY = Math.max(50, Math.min(canvas.height - 50, newY));
 
@@ -316,25 +349,36 @@ canvas.addEventListener('mousemove', (e) => {
         targetPosition.x = constrainedX;
         targetPosition.y = constrainedY;
 
-        // Update status display
         updateStatusDisplay();
     } else {
-        // Change cursor when hovering over dog
-        canvas.style.cursor = isPointInDog(pos.x, pos.y) ? 'grab' : 'default';
+        // Update cursor based on what's under mouse
+        const ball = getBallAtPosition(pos.x, pos.y);
+        if (ball) {
+            canvas.style.cursor = 'grab';
+        } else if (isPointInDog(pos.x, pos.y)) {
+            canvas.style.cursor = 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
     }
 });
 
 canvas.addEventListener('mouseup', () => {
+    if (draggingBall) {
+        draggingBall = null;
+        canvas.style.cursor = 'default';
+    }
     if (isDragging) {
         isDragging = false;
         canvas.style.cursor = 'grab';
-
-        // Send position update to server
         sendPositionUpdate();
     }
 });
 
 canvas.addEventListener('mouseleave', () => {
+    if (draggingBall) {
+        draggingBall = null;
+    }
     if (isDragging) {
         isDragging = false;
         canvas.style.cursor = 'default';
@@ -397,6 +441,122 @@ async function sendPositionUpdate() {
     } catch (error) {
         console.error('Error updating position:', error);
     }
+}
+
+// Ball physics and management
+class Ball {
+    constructor(color, x, y) {
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 8; // Random initial velocity
+        this.vy = (Math.random() - 0.5) * 8;
+        this.radius = BALL_RADIUS;
+        this.friction = 0.98; // Slow down over time
+        this.bounceDamping = 0.7; // Energy loss on bounce
+    }
+
+    update() {
+        // Apply friction
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+
+        // Update position
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce off walls
+        if (this.x - this.radius < 0) {
+            this.x = this.radius;
+            this.vx = -this.vx * this.bounceDamping;
+        }
+        if (this.x + this.radius > canvas.width) {
+            this.x = canvas.width - this.radius;
+            this.vx = -this.vx * this.bounceDamping;
+        }
+        if (this.y - this.radius < 0) {
+            this.y = this.radius;
+            this.vy = -this.vy * this.bounceDamping;
+        }
+        if (this.y + this.radius > canvas.height) {
+            this.y = canvas.height - this.radius;
+            this.vy = -this.vy * this.bounceDamping;
+        }
+
+        // Stop if moving very slowly
+        if (Math.abs(this.vx) < 0.1) this.vx = 0;
+        if (Math.abs(this.vy) < 0.1) this.vy = 0;
+    }
+
+    draw(ctx) {
+        ctx.save();
+
+        // Shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        // Ball
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.beginPath();
+        ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    contains(x, y) {
+        const dx = x - this.x;
+        const dy = y - this.y;
+        return Math.sqrt(dx * dx + dy * dy) < this.radius;
+    }
+}
+
+function addBall(color) {
+    if (balls.length >= 3) {
+        alert('Maximum 3 balls allowed! Remove one first.');
+        return;
+    }
+
+    // Check if color already exists
+    if (balls.find(b => b.color === color)) {
+        alert(`${color.charAt(0).toUpperCase() + color.slice(1)} ball already exists!`);
+        return;
+    }
+
+    // Random position in center area
+    const x = canvas.width / 2 + (Math.random() - 0.5) * 200;
+    const y = canvas.height / 2 + (Math.random() - 0.5) * 200;
+
+    const ball = new Ball(color, x, y);
+    balls.push(ball);
+
+    console.log(`Added ${color} ball at (${Math.round(x)}, ${Math.round(y)})`);
+}
+
+function removeBall(color) {
+    const index = balls.findIndex(b => b.color === color);
+    if (index !== -1) {
+        balls.splice(index, 1);
+        console.log(`Removed ${color} ball`);
+    }
+}
+
+function getBallAtPosition(x, y) {
+    // Check in reverse order so top ball is selected
+    for (let i = balls.length - 1; i >= 0; i--) {
+        if (balls[i].contains(x, y)) {
+            return balls[i];
+        }
+    }
+    return null;
 }
 
 // Initialize
