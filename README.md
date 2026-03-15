@@ -61,7 +61,22 @@ bridge/.venv/bin/python bridge/bridge.py --cmd move --ip 192.168.1.100 --dir for
 bridge/.venv/bin/python bridge/bridge.py --cmd action --ip 192.168.1.100 --name sit
 ```
 
-### 6. Use with OpenClaw
+### 6. Configure IP Address
+
+**IMPORTANT:** Set the `MECHDOG_IP` environment variable before using with OpenClaw:
+
+```bash
+# For simulator (default)
+export MECHDOG_IP=localhost:3000
+
+# For real MechDog hardware (replace with your IP)
+export MECHDOG_IP=192.168.1.100
+
+# Add to shell profile to make permanent
+echo 'export MECHDOG_IP=localhost:3000' >> ~/.zshrc  # or ~/.bashrc
+```
+
+### 7. Use with OpenClaw
 
 Add this skill to your OpenClaw configuration and control via natural language:
 
@@ -69,6 +84,8 @@ Add this skill to your OpenClaw configuration and control via natural language:
 - "Turn left and then sit down"
 - "Stand up and wave"
 - "Dance!"
+
+See `skills/mechdog/skill.md` for full configuration details.
 
 ## Architecture
 
@@ -131,9 +148,24 @@ mechdog-skill/
 
 - ✅ **Python Bridge** - HTTP client for MechDog ESP32 API
 - ✅ **OpenClaw Skill** - Natural language control interface
-- ✅ **Visual Simulator** - 🆕 Real-time canvas visualization with WebSocket
+- ✅ **Visual Simulator** - Real-time canvas visualization with WebSocket
+- ✅ **Interactive Physics** - Drag-and-drop robot and colored balls for vision testing
+- ✅ **Responsive UI** - Optimized for half-screen viewing (demos/presentations)
 - ✅ **Build Tools** - Automated scripts for building, testing, linting
 - ✅ **Complete Docs** - Integration guides and API reference
+
+## Simulator Features
+
+The visual simulator (`http://localhost:3000`) includes:
+
+- 🎨 **Real-time Canvas** - See the robot move as commands execute
+- 🔌 **WebSocket Updates** - Live state synchronization
+- 🖱️ **Drag & Drop** - Click and drag the robot to reposition it
+- 🎯 **Vision Objects** - Add colored balls (red, blue, green) for vision testing
+- 🎮 **Manual Controls** - Test movements and actions with buttons
+- 📱 **Touch Support** - Works on mobile devices
+- 📊 **Status Dashboard** - Position, rotation, battery, last command
+- 🌐 **HTTP API** - Drop-in replacement for real MechDog
 
 ## Testing
 
@@ -166,14 +198,37 @@ mechdog-skill/
 ./scripts/test.sh skill
 ```
 
-## Stretch Goals
+## Nebius Stretch Goals
 
-- [x] Visual simulator with real-time updates
-- [ ] Vision integration (ESP32-S3 camera → VLM)
-- [ ] Nebius GPU-accelerated vision inference
-- [ ] Vision-guided navigation
-- [ ] Voice wake word integration
-- [ ] Multi-agent coordination
+Three ambitious features to showcase Nebius GPU power (see `docs/MECHDOG_HACKATHON.md` for details):
+
+### 🎯 Goal 1: Real-time VLM Scene Understanding (Priority: 🔥 HIGHEST)
+- Camera → Nebius H100 GPU (Qwen2-VL-7B) → Natural language description
+- "MechDog, what do you see?" → "I see a red ball on the floor..."
+- **Time:** 2-3 hours
+
+### 🧭 Goal 2: Vision-Guided Navigation (Priority: 🔥 HIGH)
+- Autonomous navigation toward objects using VLM feedback loop
+- "Walk toward the red ball" → autonomous movement with vision
+- **Time:** 3-4 hours
+
+### 🤝 Goal 3: Multi-Agent Swarm Coordination (Priority: STRETCH)
+- Two OpenClaw agents coordinating via shared Nebius LLM
+- "MechDogs, perform a synchronized dance"
+- **Time:** 4-5 hours
+
+**Recommended:** Start with Goal 1 for maximum impact with minimal time investment.
+
+## Completed Features
+
+- [x] Python bridge with uv dependency management
+- [x] OpenClaw TypeScript skill
+- [x] Visual simulator with WebSocket real-time updates
+- [x] Drag-and-drop interaction (robot + balls)
+- [x] Physics simulation with colored balls for vision testing
+- [x] Responsive UI optimized for half-screen viewing
+- [x] Comprehensive build/test/management scripts
+- [x] Complete documentation
 
 ## Resources
 
