@@ -84,7 +84,7 @@ else
 fi
 
 print_status "Installing Python dependencies..."
-uv pip install requests anthropic openai
+uv pip install requests anthropic openai bleak flask
 
 cd ..
 
