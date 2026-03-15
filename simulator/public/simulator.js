@@ -741,18 +741,30 @@ class FloatingEmoji {
 
     draw(ctx) {
         ctx.save();
-        ctx.globalAlpha = this.opacity;
 
-        // Add shadow for better visibility
+        const displaySize = this.size * this.scale;
+
+        // Draw white background circle for visibility
+        ctx.globalAlpha = this.opacity * 0.9;
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, displaySize * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Add shadow to background
         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 8;
 
-        ctx.font = `${this.size * this.scale}px Arial`;
+        // Draw emoji with full opacity (no transparency)
+        ctx.globalAlpha = 1; // Always fully opaque!
+        ctx.shadowColor = 'transparent'; // No shadow on emoji itself
+        ctx.shadowBlur = 0;
+
+        ctx.font = `${displaySize}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.emoji, this.x, this.y);
+
         ctx.restore();
     }
 }
