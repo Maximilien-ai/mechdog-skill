@@ -190,7 +190,7 @@ Response: {
 python3 bridge/mock_server.py
 
 # Terminal 2: Run full test suite
-./test.sh bridge --ip 127.0.0.1:8080
+./scripts/test.sh bridge --ip 127.0.0.1:8080
 
 # Terminal 3: Monitor logs
 # Watch Terminal 1 for simulated actions

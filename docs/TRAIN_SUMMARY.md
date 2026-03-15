@@ -90,7 +90,7 @@ mechdog-skill/
 
 2. **Test bridge manually**
    ```bash
-   ./test.sh bridge --ip <MECHDOG_IP>
+   ./scripts/test.sh bridge --ip <MECHDOG_IP>
    ```
 
 3. **Test with OpenClaw**
@@ -117,19 +117,19 @@ mechdog-skill/
 
 ```bash
 # Build everything
-./build.sh all
+./scripts/build.sh all
 
 # Run health check (no hardware needed)
-./test.sh check
+./scripts/test.sh check
 
 # Test with hardware
-./test.sh bridge --ip 192.168.1.100
+./scripts/test.sh bridge --ip 192.168.1.100
 
 # Run full demo
-./test.sh demo --ip 192.168.1.100
+./scripts/test.sh demo --ip 192.168.1.100
 
 # Type check TypeScript
-./test.sh skill
+./scripts/test.sh skill
 ```
 
 ## What's Working

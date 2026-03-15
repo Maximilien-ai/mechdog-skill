@@ -21,30 +21,29 @@ Natural language control of the Hiwonder MechDog quadruped robot via OpenClaw.
 git clone https://github.com/Maximilien-ai/mechdog-skill.git
 cd mechdog-skill
 
-# Install Python dependencies (uses uv)
-cd bridge
-uv venv
-uv pip install requests
-cd ..
+# One-command setup (installs everything)
+./setup.sh
 
-# Install Node.js dependencies
-npm install
-
-# Configure MechDog IP
-cp .env.example .env
-# Edit .env and set your MechDog's IP address
+# Or manual setup:
+# cd bridge && uv venv && uv pip install requests && cd ..
+# npm install
+# cd simulator && npm install && cd ..
 ```
 
-### 3. Run the Visual Simulator (Optional)
+### 3. Run the Visual Simulator (Recommended for Development)
 
 ```bash
 # Start the visual simulator
-cd simulator
-npm run dev
-# Open http://localhost:3000 in browser
+./scripts/start.sh
+
+# Check status
+./scripts/status.sh
+
+# Stop when done
+./scripts/stop.sh
 ```
 
-See your robot move in real-time with a beautiful canvas visualization!
+Open http://localhost:3000 in your browser to see the robot move in real-time with a beautiful canvas visualization!
 
 ### 4. Find Your MechDog IP (For Real Hardware)
 
@@ -117,7 +116,14 @@ mechdog-skill/
 │   ├── SIMULATOR.md       # Simulator guide
 │   ├── OPENCLAW_INTEGRATION.md
 │   └── ESP32_API.md
-├── build.sh, test.sh, lint.sh  # Build automation
+├── scripts/               # Build & development tools
+│   ├── build.sh           # Build everything
+│   ├── test.sh            # Run tests
+│   ├── lint.sh            # Code linting
+│   ├── start.sh           # Start simulator
+│   ├── stop.sh            # Stop simulator
+│   └── status.sh          # Check simulator status
+├── setup.sh               # One-command setup
 └── package.json           # Node.js configuration
 ```
 
@@ -128,6 +134,37 @@ mechdog-skill/
 - ✅ **Visual Simulator** - 🆕 Real-time canvas visualization with WebSocket
 - ✅ **Build Tools** - Automated scripts for building, testing, linting
 - ✅ **Complete Docs** - Integration guides and API reference
+
+## Testing
+
+### Quick Health Check
+```bash
+./scripts/test.sh check
+```
+
+### Test with Simulator
+```bash
+# Start simulator first
+./scripts/start.sh
+
+# Test bridge commands
+./scripts/test.sh bridge --ip localhost:3000
+
+# Run full demo sequence
+./scripts/test.sh demo --ip localhost:3000
+```
+
+### Test with Real Hardware
+```bash
+# Replace with your MechDog's IP
+./scripts/test.sh bridge --ip 192.168.1.100
+./scripts/test.sh demo --ip 192.168.1.100
+```
+
+### Test TypeScript
+```bash
+./scripts/test.sh skill
+```
 
 ## Stretch Goals
 
