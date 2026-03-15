@@ -288,8 +288,10 @@ function getMousePos(canvas, evt) {
 // Mouse events
 canvas.addEventListener('mousedown', (e) => {
     const pos = getMousePos(canvas, e);
+    console.log('Mouse down at:', pos);
 
     if (isPointInDog(pos.x, pos.y)) {
+        console.log('Dragging started!');
         isDragging = true;
         dragOffset.x = pos.x - dogState.position.x;
         dragOffset.y = pos.y - dogState.position.y;
