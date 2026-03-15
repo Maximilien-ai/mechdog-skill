@@ -41,7 +41,7 @@ class MechDogBluetooth:
             print(f"✓ Connected to MechDog")
 
             # Discover services
-            services = await self.client.get_services()
+            services = self.client.services
             print("\nAvailable services:")
             for service in services:
                 print(f"  Service: {service.uuid}")
@@ -129,7 +129,7 @@ def get_status():
 
 
 @app.route('/move', methods=['POST'])
-async def move():
+def move():
     """Move MechDog"""
     if not mechdog or not mechdog.connected:
         return jsonify({'error': 'Not connected to MechDog'}), 503
@@ -139,7 +139,12 @@ async def move():
     duration_ms = data.get('duration_ms', 1000)
 
     command = mechdog.encode_move(direction, duration_ms)
-    success = await mechdog.send_command(command)
+
+    # Run async function in sync context
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    success = loop.run_until_complete(mechdog.send_command(command))
+    loop.close()
 
     if success:
         return jsonify({'status': 'ok', 'direction': direction, 'duration_ms': duration_ms})
@@ -148,7 +153,7 @@ async def move():
 
 
 @app.route('/action', methods=['POST'])
-async def action():
+def action():
     """Perform action"""
     if not mechdog or not mechdog.connected:
         return jsonify({'error': 'Not connected to MechDog'}), 503
@@ -157,7 +162,12 @@ async def action():
     action_name = data.get('name', 'stand')
 
     command = mechdog.encode_action(action_name)
-    success = await mechdog.send_command(command)
+
+    # Run async function in sync context
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    success = loop.run_until_complete(mechdog.send_command(command))
+    loop.close()
 
     if success:
         return jsonify({'status': 'ok', 'action': action_name})
