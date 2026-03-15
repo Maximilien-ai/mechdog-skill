@@ -233,21 +233,33 @@ The visual simulator (`http://localhost:3000`) includes:
 Three ambitious features to showcase Nebius GPU power (see `docs/MECHDOG_HACKATHON.md` for details):
 
 ### 🎯 Goal 1: Real-time VLM Scene Understanding (Priority: 🔥 HIGHEST)
-- Camera → Nebius H100 GPU (Qwen2-VL-7B) → Natural language description
+- Camera → Nebius VLM (Llama-3.2-11B-Vision) → Natural language description
 - "MechDog, what do you see?" → "I see a red ball on the floor..."
-- **Time:** 2-3 hours
+- **Status:** ✅ Ready! Vision integration complete
+- **Setup:**
+  ```bash
+  # 1. Copy .env.example to .env
+  cp .env.example .env
+
+  # 2. Add your Nebius API key to .env
+  NEBIUS_API_KEY=your-api-key-here
+
+  # 3. Test vision
+  ./scripts/test.sh demo-vision --ip localhost:3000
+  ```
 
 ### 🧭 Goal 2: Vision-Guided Navigation (Priority: 🔥 HIGH)
 - Autonomous navigation toward objects using VLM feedback loop
 - "Walk toward the red ball" → autonomous movement with vision
-- **Time:** 3-4 hours
+- **Status:** ✅ Demo ready! See `bridge/demo/test_vision_advanced.sh`
+- **Test:** `./scripts/test.sh demo-vision --ip localhost:3000`
 
 ### 🤝 Goal 3: Multi-Agent Swarm Coordination (Priority: STRETCH)
 - Two OpenClaw agents coordinating via shared Nebius LLM
 - "MechDogs, perform a synchronized dance"
 - **Time:** 4-5 hours
 
-**Recommended:** Start with Goal 1 for maximum impact with minimal time investment.
+**Recommended:** Start with Goal 1 - vision integration is ready to test!
 
 ## Completed Features
 

@@ -165,12 +165,32 @@ cd bridge/demo
 
 ## Environment Variables
 
-### Required for Real Hardware
+**Recommended: Use `.env` file for configuration**
+
 ```bash
-export MECHDOG_IP=192.168.4.1  # or your MechDog IP
+# 1. Copy the example file
+cp .env.example .env
+
+# 2. Edit .env with your API keys
+# Add your NEBIUS_API_KEY or ANTHROPIC_API_KEY
 ```
 
-### Optional for Vision
+**`.env` file format:**
+```bash
+# Nebius Token Factory API (recommended for vision)
+NEBIUS_API_KEY=your-nebius-api-key-here
+NEBIUS_MODEL=Qwen/Qwen2-VL-7B-Instruct  # Check your Nebius dashboard for available models
+
+# Alternative: Anthropic Claude
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
+
+# Optional: MechDog hardware IP
+MECHDOG_IP=192.168.4.1
+```
+
+**Important:** Update `NEBIUS_MODEL` with the exact model ID from your Nebius Token Factory account.
+
+**Alternative: Export environment variables**
 ```bash
 # For Nebius VLM (Stretch Goal #1)
 export NEBIUS_API_KEY=your-nebius-key
@@ -198,12 +218,17 @@ export ANTHROPIC_API_KEY=your-anthropic-key
 
 ### Vision test fails
 ```
-Warning: ANTHROPIC_API_KEY not set. VLM inference unavailable.
+Warning: NEBIUS_API_KEY not set. VLM inference unavailable.
 ```
 
 **Solution:**
-- Set API key: `export ANTHROPIC_API_KEY=your-key`
-- Or use mock mode: `python vision.py --ip localhost:3000 --mock`
+1. Copy `.env.example` to `.env`: `cp .env.example .env`
+2. Edit `.env` and add your API key:
+   ```bash
+   NEBIUS_API_KEY=your-actual-key-here
+   ```
+3. Vision script automatically loads from `.env` file
+4. Alternative: Export directly: `export NEBIUS_API_KEY=your-key`
 
 ### Bridge connection fails
 ```

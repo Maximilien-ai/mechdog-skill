@@ -10,6 +10,21 @@ import base64
 import sys
 import os
 from typing import Optional
+from pathlib import Path
+
+# Load environment variables from .env file
+def load_env():
+    """Load environment variables from .env file if it exists"""
+    env_path = Path(__file__).parent.parent / '.env'
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    key, _, value = line.partition('=')
+                    os.environ.setdefault(key.strip(), value.strip())
+
+load_env()
 
 
 def capture_frame(ip: str, save_path: str = "/tmp/mechdog_frame.jpg") -> bool:
@@ -40,40 +55,104 @@ def encode_image_base64(image_path: str) -> Optional[str]:
         return None
 
 
-def query_vlm_nebius(image_base64: str, prompt: str = "Describe what you see in this image.") -> Optional[str]:
+def query_vlm_nebius(image_path: str, prompt: str = "Describe what you see in this image.") -> Optional[str]:
     """
-    Query Nebius GPU-hosted VLM (Qwen or similar)
-
-    TODO: Replace with actual Nebius API endpoint and authentication
+    Query Nebius Token Factory VLM (vision models via OpenAI-compatible API)
     """
-    # Placeholder for Nebius API integration
-    nebius_endpoint = os.getenv("NEBIUS_VLM_ENDPOINT", "https://api.nebius.ai/v1/vlm/inference")
     nebius_api_key = os.getenv("NEBIUS_API_KEY", "")
+    # Default to a common vision model - users can override in .env
+    nebius_model = os.getenv("NEBIUS_MODEL", "Qwen/Qwen2-VL-7B-Instruct")
 
     if not nebius_api_key:
         print("Warning: NEBIUS_API_KEY not set. VLM inference unavailable.", file=sys.stderr)
+        print("Set NEBIUS_API_KEY in .env file or environment", file=sys.stderr)
         return None
 
     try:
-        response = requests.post(
-            nebius_endpoint,
-            headers={
-                "Authorization": f"Bearer {nebius_api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "qwen-vl",
-                "image": image_base64,
-                "prompt": prompt,
-                "max_tokens": 200
-            },
-            timeout=30
-        )
-        response.raise_for_status()
-        result = response.json()
-        return result.get("description", "No description available")
-    except requests.exceptions.RequestException as e:
-        print(f"Error querying VLM: {e}", file=sys.stderr)
+        # Try using OpenAI library (preferred)
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(
+                base_url="https://api.tokenfactory.nebius.com/v1/",
+                api_key=nebius_api_key
+            )
+
+            # Encode image to base64
+            with open(image_path, "rb") as f:
+                image_data = base64.b64encode(f.read()).decode('utf-8')
+
+            response = client.chat.completions.create(
+                model=nebius_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{image_data}"
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=200
+            )
+
+            return response.choices[0].message.content
+
+        except ImportError:
+            # Fallback to requests library
+            print("Note: openai package not found, using requests fallback", file=sys.stderr)
+
+            with open(image_path, "rb") as f:
+                image_data = base64.b64encode(f.read()).decode('utf-8')
+
+            response = requests.post(
+                "https://api.tokenfactory.nebius.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {nebius_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": nebius_model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/jpeg;base64,{image_data}"
+                                    }
+                                },
+                                {
+                                    "type": "text",
+                                    "text": prompt
+                                }
+                            ]
+                        }
+                    ],
+                    "max_tokens": 200
+                },
+                timeout=30
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            if "choices" in result and len(result["choices"]) > 0:
+                return result["choices"][0]["message"]["content"]
+            else:
+                print(f"Unexpected response format: {result}", file=sys.stderr)
+                return None
+
+    except Exception as e:
+        print(f"Error querying Nebius VLM: {e}", file=sys.stderr)
         return None
 
 
@@ -100,7 +179,7 @@ def query_vlm_anthropic(image_path: str, prompt: str = "Describe what you see in
             image_data = base64.b64encode(f.read()).decode('utf-8')
 
         message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-3-5-sonnet-20240620",
             max_tokens=200,
             messages=[
                 {
@@ -153,9 +232,7 @@ def main():
     description = None
 
     if args.provider == 'nebius':
-        image_b64 = encode_image_base64(args.save)
-        if image_b64:
-            description = query_vlm_nebius(image_b64, args.prompt)
+        description = query_vlm_nebius(args.save, args.prompt)
     elif args.provider == 'anthropic':
         description = query_vlm_anthropic(args.save, args.prompt)
 
