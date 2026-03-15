@@ -52,10 +52,14 @@ fi
 
 cd "$(dirname "$0")/.."
 
-# Load .env file if it exists
-if [ -f "../../.env" ]; then
-    export $(cat ../../.env | grep -v '^#' | grep -v '^$' | xargs)
+# Load .env file if it exists (disable exit on error temporarily)
+set +e
+if [ -f "../.env" ]; then
+    set -a
+    source ../.env 2>/dev/null
+    set +a
 fi
+set -e
 
 # Scenario 1: Look around
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
