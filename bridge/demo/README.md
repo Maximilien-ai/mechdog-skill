@@ -179,7 +179,8 @@ cp .env.example .env
 ```bash
 # Nebius Token Factory API (recommended for vision)
 NEBIUS_API_KEY=your-nebius-api-key-here
-NEBIUS_MODEL=Qwen/Qwen2-VL-7B-Instruct  # Check your Nebius dashboard for available models
+NEBIUS_BASE_URL=https://api.tokenfactory.us-central1.nebius.com/v1/
+NEBIUS_MODEL=dedicated/Qwen/Qwen2.5-VL-72B-Instruct-YOUR_ID
 
 # Alternative: Anthropic Claude
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
@@ -188,7 +189,8 @@ ANTHROPIC_API_KEY=your-anthropic-api-key-here
 MECHDOG_IP=192.168.4.1
 ```
 
-**Important:** Update `NEBIUS_MODEL` with the exact model ID from your Nebius Token Factory account.
+**Important:** Copy your dedicated model ID from Nebius dashboard to `NEBIUS_MODEL`.
+Example: `dedicated/Qwen/Qwen2.5-VL-72B-Instruct-dQEwwpQN9Pc3`
 
 **Alternative: Export environment variables**
 ```bash

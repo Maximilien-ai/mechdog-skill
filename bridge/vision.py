@@ -60,12 +60,18 @@ def query_vlm_nebius(image_path: str, prompt: str = "Describe what you see in th
     Query Nebius Token Factory VLM (vision models via OpenAI-compatible API)
     """
     nebius_api_key = os.getenv("NEBIUS_API_KEY", "")
-    # Default to a common vision model - users can override in .env
-    nebius_model = os.getenv("NEBIUS_MODEL", "Qwen/Qwen2-VL-7B-Instruct")
+    nebius_base_url = os.getenv("NEBIUS_BASE_URL", "https://api.tokenfactory.us-central1.nebius.com/v1/")
+    # User must set this in .env - it's a dedicated model ID
+    nebius_model = os.getenv("NEBIUS_MODEL", "")
 
     if not nebius_api_key:
         print("Warning: NEBIUS_API_KEY not set. VLM inference unavailable.", file=sys.stderr)
         print("Set NEBIUS_API_KEY in .env file or environment", file=sys.stderr)
+        return None
+
+    if not nebius_model:
+        print("Warning: NEBIUS_MODEL not set. Set your dedicated model ID in .env", file=sys.stderr)
+        print("Example: NEBIUS_MODEL=dedicated/Qwen/Qwen2.5-VL-72B-Instruct-dQEwwpQN9Pc3", file=sys.stderr)
         return None
 
     try:
@@ -74,7 +80,7 @@ def query_vlm_nebius(image_path: str, prompt: str = "Describe what you see in th
             from openai import OpenAI
 
             client = OpenAI(
-                base_url="https://api.tokenfactory.nebius.com/v1/",
+                base_url=nebius_base_url,
                 api_key=nebius_api_key
             )
 
@@ -114,7 +120,7 @@ def query_vlm_nebius(image_path: str, prompt: str = "Describe what you see in th
                 image_data = base64.b64encode(f.read()).decode('utf-8')
 
             response = requests.post(
-                "https://api.tokenfactory.nebius.com/v1/chat/completions",
+                f"{nebius_base_url.rstrip('/')}/chat/completions",
                 headers={
                     "Authorization": f"Bearer {nebius_api_key}",
                     "Content-Type": "application/json"
