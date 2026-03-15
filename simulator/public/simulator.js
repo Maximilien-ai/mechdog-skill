@@ -656,7 +656,8 @@ async function captureFrame() {
 }
 
 // Toggle floating camera
-let isFloating = false;
+let isFloating = true; // Start floating by default
+let isLarge = false;
 
 function toggleFloat() {
     const cameraSection = document.getElementById('cameraSection');
@@ -674,6 +675,30 @@ function toggleFloat() {
 
     console.log(`Camera ${isFloating ? 'floating' : 'docked'}`);
 }
+
+function toggleSize() {
+    const cameraSection = document.getElementById('cameraSection');
+    const resizeBtn = document.getElementById('resizeBtn');
+
+    isLarge = !isLarge;
+
+    if (isLarge) {
+        cameraSection.classList.add('large');
+        resizeBtn.textContent = '🔍 Shrink';
+    } else {
+        cameraSection.classList.remove('large');
+        resizeBtn.textContent = '🔍 Enlarge';
+    }
+
+    console.log(`Camera size: ${isLarge ? 'large' : 'small'}`);
+}
+
+// Auto-float camera on page load
+window.addEventListener('DOMContentLoaded', () => {
+    const cameraSection = document.getElementById('cameraSection');
+    cameraSection.classList.add('floating');
+    console.log('Camera auto-floated to top-right');
+});
 
 // Initialize
 connect();

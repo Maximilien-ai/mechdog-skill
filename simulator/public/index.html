@@ -196,20 +196,23 @@
             right: 20px;
             margin-top: 0;
             padding: 10px;
-            max-width: 280px;
+            max-width: 200px;
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             z-index: 1000;
         }
 
+        .camera-section.floating.large {
+            max-width: 400px;
+        }
+
         .camera-section.floating h3 {
-            font-size: 1em;
+            font-size: 0.9em;
             margin-bottom: 5px;
         }
 
         .camera-section.floating p {
-            font-size: 0.75em;
-            margin-bottom: 10px;
+            display: none; /* Hide description in floating mode */
         }
 
         .camera-preview {
@@ -240,8 +243,29 @@
         }
 
         .camera-section.floating .control-btn {
-            font-size: 0.8em;
-            padding: 8px 6px;
+            font-size: 0.75em;
+            padding: 6px 4px;
+        }
+
+        .resize-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .camera-section.floating .resize-btn {
+            display: block;
+            width: 100%;
+        }
+
+        .resize-btn:hover {
+            background: #ffb300;
         }
 
         .camera-status {
@@ -366,8 +390,12 @@
                 </button>
             </div>
 
+            <button class="resize-btn" onclick="toggleSize()" id="resizeBtn">
+                🔍 Enlarge
+            </button>
+
             <button class="toggle-float-btn" onclick="toggleFloat()" id="toggleFloatBtn">
-                📌 Float Camera
+                📍 Dock Camera
             </button>
 
             <div class="camera-status" id="cameraStatus">
@@ -377,6 +405,6 @@
         </div>
     </div>
 
-    <script src="simulator.js?v=7"></script>
+    <script src="simulator.js?v=8"></script>
 </body>
 </html>
