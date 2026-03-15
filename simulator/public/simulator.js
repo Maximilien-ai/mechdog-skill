@@ -712,12 +712,13 @@ class FloatingEmoji {
         this.emoji = emoji;
         this.x = x;
         this.y = y;
-        this.vy = -2; // Float upward
-        this.vx = (Math.random() - 0.5) * 1; // Slight horizontal drift
+        this.vy = -2.5; // Float upward faster
+        this.vx = (Math.random() - 0.5) * 1.5; // More horizontal drift
         this.opacity = 1;
         this.lifetime = 0;
-        this.maxLifetime = 120; // 2 seconds at 60fps
-        this.size = 32;
+        this.maxLifetime = 100; // 1.6 seconds at 60fps
+        this.size = 48; // Larger size
+        this.scale = 1;
     }
 
     update() {
@@ -725,9 +726,14 @@ class FloatingEmoji {
         this.y += this.vy;
         this.x += this.vx;
 
-        // Fade out in last 30 frames
-        if (this.lifetime > this.maxLifetime - 30) {
-            this.opacity = (this.maxLifetime - this.lifetime) / 30;
+        // Grow slightly at start
+        if (this.lifetime < 10) {
+            this.scale = 0.5 + (this.lifetime / 10) * 0.5;
+        }
+
+        // Fade out in last 25 frames
+        if (this.lifetime > this.maxLifetime - 25) {
+            this.opacity = (this.maxLifetime - this.lifetime) / 25;
         }
 
         return this.lifetime < this.maxLifetime;
@@ -736,7 +742,14 @@ class FloatingEmoji {
     draw(ctx) {
         ctx.save();
         ctx.globalAlpha = this.opacity;
-        ctx.font = `${this.size}px Arial`;
+
+        // Add shadow for better visibility
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        ctx.font = `${this.size * this.scale}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.emoji, this.x, this.y);
