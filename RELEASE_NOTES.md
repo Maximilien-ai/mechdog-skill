@@ -35,6 +35,7 @@
 **New Test Scripts:**
 - `bridge/demo/test_camera.sh` - Test camera capture, validate JPEG, auto-open image
 - `bridge/demo/test_vision.sh` - Test VLM integration (Nebius/Anthropic/mock)
+- `bridge/demo/test_vision_advanced.sh` - Advanced vision-guided navigation demo (NEW!)
 - `bridge/demo/README.md` - Comprehensive demo guide with examples
 
 **Documentation Improvements:**
@@ -89,22 +90,40 @@ bridge/demo/test_camera.sh localhost:3000
 # 6. Test vision (with API key)
 export ANTHROPIC_API_KEY=your-key
 bridge/demo/test_vision.sh localhost:3000
+
+# 7. Test advanced vision-guided navigation (NEW!)
+./scripts/test.sh demo-vision --ip localhost:3000
 ```
 
-### 🎯 Ready for Nebius Stretch Goal #1
+### 🎯 Ready for Nebius Stretch Goals #1 & #2
 
-**VLM Scene Understanding:**
+**VLM Scene Understanding (Goal #1):**
 - Camera capture working ✅
 - Vision script ready (`bridge/vision.py`) ✅
 - Demo scripts for testing ✅
 - Documentation complete ✅
 - Just need Nebius API key!
 
+**Vision-Guided Navigation (Goal #2):**
+- Advanced demo script with 4 scenarios ✅
+- Scene understanding → Decision → Navigation loop → Celebration ✅
+- Integrated into test.sh as `demo-vision` subcommand ✅
+- Mock mode for testing without VLM API ✅
+
+**Test Commands:**
+```bash
+# Basic demo
+./scripts/test.sh demo --ip localhost:3000
+
+# Advanced vision-guided navigation
+./scripts/test.sh demo-vision --ip localhost:3000
+```
+
 **Next Steps:**
 1. Test with real MechDog at venue
 2. Wire OpenClaw agent with skill
 3. Implement Nebius VLM integration
-4. Test vision-guided navigation
+4. Add real vision feedback in navigation loop
 
 ---
 
@@ -167,6 +186,7 @@ bridge/demo/test_vision.sh localhost:3000
 - `bridge` - Test Python bridge with hardware/simulator
 - `skill` - TypeScript type checking
 - `demo` - Full demo sequence
+- `demo-vision` - Advanced vision-guided navigation demo (NEW in v0.1.1)
 - `all` - Run all tests
 
 ### File Structure

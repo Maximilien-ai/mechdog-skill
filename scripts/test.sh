@@ -33,12 +33,13 @@ print_help() {
     echo "Usage: ./scripts/test.sh [COMMAND] [OPTIONS]"
     echo ""
     echo "Commands:"
-    echo "  bridge      Test Python bridge (requires --ip)"
-    echo "  skill       Test OpenClaw skill functionality"
-    echo "  demo        Run full demo sequence (requires --ip)"
-    echo "  check       Quick health check (no hardware needed)"
-    echo "  all         Run all tests that don't require hardware"
-    echo "  help        Show this help message"
+    echo "  bridge        Test Python bridge (requires --ip)"
+    echo "  skill         Test OpenClaw skill functionality"
+    echo "  demo          Run full demo sequence (requires --ip)"
+    echo "  demo-vision   Run advanced vision-guided navigation demo (requires --ip)"
+    echo "  check         Quick health check (no hardware needed)"
+    echo "  all           Run all tests that don't require hardware"
+    echo "  help          Show this help message"
     echo ""
     echo "Options:"
     echo "  --ip <IP>   MechDog IP address or localhost:PORT for simulator"
@@ -50,10 +51,12 @@ print_help() {
     echo "  # Test with visual simulator (start it first with ./scripts/start.sh)"
     echo "  ./scripts/test.sh bridge --ip localhost:3000"
     echo "  ./scripts/test.sh demo --ip localhost:3000"
+    echo "  ./scripts/test.sh demo-vision --ip localhost:3000"
     echo ""
     echo "  # Test with real hardware"
     echo "  ./scripts/test.sh bridge --ip 192.168.1.100"
     echo "  ./scripts/test.sh demo --ip 192.168.1.100"
+    echo "  ./scripts/test.sh demo-vision --ip 192.168.1.100"
     echo ""
     echo "  # Test TypeScript compilation"
     echo "  ./scripts/test.sh skill"
@@ -204,6 +207,22 @@ test_demo() {
     print_status "Demo complete"
 }
 
+test_demo_vision() {
+    print_header "Running advanced vision-guided navigation demo"
+
+    if [ -z "$MECHDOG_IP" ]; then
+        print_error "MechDog IP required. Use --ip <IP>"
+        exit 1
+    fi
+
+    print_status "Running advanced vision demo with MechDog at $MECHDOG_IP"
+    cd bridge/demo
+    ./test_vision_advanced.sh "$MECHDOG_IP"
+    cd ../..
+
+    print_status "Vision demo complete"
+}
+
 test_all() {
     print_header "Running all tests (no hardware required)"
 
@@ -225,6 +244,9 @@ case "$COMMAND" in
         ;;
     demo)
         test_demo
+        ;;
+    demo-vision)
+        test_demo_vision
         ;;
     check)
         test_check
