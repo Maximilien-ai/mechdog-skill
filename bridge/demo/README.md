@@ -56,6 +56,43 @@ Quick test scripts for MechDog functionality.
 
 ---
 
+## Vision Integration Tests (Nebius Stretch Goals #1 & #2)
+
+### Advanced Vision-Guided Demo (NEW!)
+```bash
+# Full vision-guided navigation demo
+./test_vision_advanced.sh localhost:3000
+```
+
+**What it does:**
+1. **Scene Understanding** - Captures and analyzes what MechDog sees
+2. **Vision-Based Decisions** - Turns toward detected red ball
+3. **Navigation Loop** - Walks toward target with vision feedback
+4. **Celebration** - Dance when goal reached!
+
+**Prerequisites (Simulator):**
+1. Add colored balls (red, blue, green)
+2. Arrange balls in scene
+3. Point webcam at canvas
+4. Capture frame
+
+**Demo Flow:**
+```
+🎥 Scene Analysis
+↓
+🧭 Decision: Turn toward red ball
+↓
+🚶 Navigation: Walk forward 3 steps with vision feedback
+↓
+💃 Celebration: Dance!
+```
+
+This showcases both:
+- **Stretch Goal #1:** VLM scene understanding
+- **Stretch Goal #2:** Vision-guided navigation
+
+---
+
 ## Vision Integration Tests (Nebius Stretch Goal #1)
 
 ### Test Vision with VLM
