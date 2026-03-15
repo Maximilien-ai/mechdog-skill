@@ -11,6 +11,7 @@ const MECHDOG_IP = process.env.MECHDOG_IP || '192.168.1.100';
 
 // Paths
 const BRIDGE_PATH = path.join(__dirname, '../../bridge/bridge.py');
+const VISION_PATH = path.join(__dirname, '../../bridge/vision.py');
 const PYTHON_PATH = path.join(__dirname, '../../bridge/.venv/bin/python');
 
 /**
@@ -106,6 +107,52 @@ export const tools = {
         return `Camera capture successful\n${result}`;
       } catch (error: any) {
         return `Camera capture failed: ${error.message}\n(Vision features may not be available)`;
+      }
+    }
+  },
+
+  see: {
+    description: 'Use vision AI to describe what MechDog sees through its camera. Captures image and analyzes with VLM (Nebius/Anthropic).',
+    parameters: {
+      type: 'object',
+      properties: {
+        question: {
+          type: 'string',
+          description: 'Optional question to ask about the image (e.g., "What color is the ball?"). Default: general scene description',
+          default: 'Describe what you see in this image. Focus on objects, colors, and spatial layout.'
+        },
+        provider: {
+          type: 'string',
+          enum: ['nebius', 'anthropic'],
+          description: 'VLM provider to use (default: nebius)',
+          default: 'nebius'
+        }
+      }
+    },
+    execute: async ({ question, provider = 'nebius' }: {
+      question?: string;
+      provider?: string;
+    }) => {
+      const prompt = question || 'Describe what you see in this image. Focus on objects, colors, and spatial layout.';
+
+      const args = [
+        VISION_PATH,
+        '--ip', MECHDOG_IP,
+        '--provider', provider,
+        '--prompt', prompt,
+        '--save', '/tmp/mechdog_vision.jpg'
+      ];
+
+      try {
+        const command = `${PYTHON_PATH} ${args.join(' ')}`;
+        const result = execSync(command, {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+          timeout: 30000 // 30 second timeout for VLM
+        });
+        return `🤖 MechDog Vision:\n${result.trim()}`;
+      } catch (error: any) {
+        return `Vision analysis failed: ${error.message}\n(Make sure NEBIUS_API_KEY or ANTHROPIC_API_KEY is set in .env)`;
       }
     }
   }
