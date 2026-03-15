@@ -260,6 +260,15 @@ Three ambitious features to showcase Nebius GPU power (see `docs/MECHDOG_HACKATH
 - [x] Comprehensive build/test/management scripts
 - [x] Complete documentation
 
+## Documentation
+
+- **[FAQ](docs/FAQ.md)** - Frequently asked questions
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Detailed problem-solving guide
+- **[Hackathon Plan](docs/MECHDOG_HACKATHON.md)** - Timeline and Nebius stretch goals
+- **[ESP32 API](docs/ESP32_API.md)** - WiFi API reference and connectivity guide
+- **[Simulator Guide](docs/SIMULATOR.md)** - Visual simulator documentation
+- **[OpenClaw Integration](docs/OPENCLAW_INTEGRATION.md)** - Integration guide
+
 ## Resources
 
 - [OpenClaw GitHub](https://github.com/openclaw/openclaw)
