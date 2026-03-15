@@ -52,6 +52,11 @@ fi
 
 cd "$(dirname "$0")/.."
 
+# Load .env file if it exists
+if [ -f "../../.env" ]; then
+    export $(cat ../../.env | grep -v '^#' | grep -v '^$' | xargs)
+fi
+
 # Scenario 1: Look around
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}  SCENARIO 1: Scene Understanding${NC}"
