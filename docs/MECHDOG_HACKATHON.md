@@ -83,6 +83,11 @@ Nebius GPU (VLM vision inference — camera feed → scene understanding)
 - [x] **OpenClaw skill** (1h):
   - mechdog/index.ts: `move` and `action` tools
   - Test: Can control dog via OpenClaw agent
+- [x] **Visual simulator** (BONUS):
+  - Created web-based simulator with canvas rendering
+  - WebSocket real-time updates
+  - Drag-and-drop interaction for robot and balls
+  - Colored balls with physics for vision testing
 - [ ] **End-to-end test** (30min):
   - Natural language → OpenClaw → dog moves
   - Record backup demo video
@@ -93,6 +98,10 @@ Nebius GPU (VLM vision inference — camera feed → scene understanding)
 - [x] Fix any bugs from Saturday night
 - [x] Polish demo script (created test_bridge.sh)
 - [x] Prepare presentation notes (created docs)
+- [x] Build scripts organization (setup.sh, scripts/ directory)
+- [x] Comprehensive test suite (check, bridge, skill, demo modes)
+- [x] Responsive UI for simulator (optimized for half-screen)
+- [x] Release v0.1.0 with full release notes
 - [ ] Charge MechDog battery to 100%
 
 ### 🏆 Sunday Hackathon (11am-8pm)
