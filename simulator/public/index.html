@@ -208,11 +208,13 @@
 
         <div class="controls">
             <button class="control-btn" onclick="sendCommand('move', {direction: 'forward', duration: 1000})">⬆️ Forward</button>
+            <button class="control-btn" onclick="sendCommand('move', {direction: 'backward', duration: 1000})">⬇️ Backward</button>
             <button class="control-btn" onclick="sendCommand('move', {direction: 'left', duration: 500})">⬅️ Left</button>
             <button class="control-btn" onclick="sendCommand('move', {direction: 'right', duration: 500})">➡️ Right</button>
             <button class="control-btn" onclick="sendCommand('action', {name: 'sit'})">🪑 Sit</button>
             <button class="control-btn" onclick="sendCommand('action', {name: 'wave'})">👋 Wave</button>
             <button class="control-btn" onclick="sendCommand('action', {name: 'dance'})">💃 Dance</button>
+            <button class="control-btn" onclick="sendCommand('action', {name: 'stand'})">🧍 Stand</button>
         </div>
 
         <h3 style="margin-top: 30px; color: #333; text-align: center;">🎯 Vision Objects</h3>
@@ -230,6 +232,6 @@
         </div>
     </div>
 
-    <script src="simulator.js?v=3"></script>
+    <script src="simulator.js?v=4"></script>
 </body>
 </html>
