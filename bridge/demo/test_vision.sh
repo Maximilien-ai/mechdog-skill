@@ -6,7 +6,7 @@
 set -e
 
 IP=${1:-localhost:3000}
-PROVIDER=${2:-anthropic}
+PROVIDER=${2:-nebius}
 
 # Colors
 GREEN='\033[0;32m'

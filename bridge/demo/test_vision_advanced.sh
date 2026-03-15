@@ -67,16 +67,16 @@ else
     PYTHON="python3"
 fi
 
-# Check for API key
-if [ -n "$ANTHROPIC_API_KEY" ]; then
-    echo -e "${GREEN}✓${NC} Using Anthropic Claude for vision"
-    PROVIDER="anthropic"
-elif [ -n "$NEBIUS_API_KEY" ]; then
+# Check for API key (prefer Nebius)
+if [ -n "$NEBIUS_API_KEY" ] && [ -n "$NEBIUS_MODEL" ]; then
     echo -e "${GREEN}✓${NC} Using Nebius VLM for vision"
     PROVIDER="nebius"
+elif [ -n "$ANTHROPIC_API_KEY" ]; then
+    echo -e "${GREEN}✓${NC} Using Anthropic Claude for vision"
+    PROVIDER="anthropic"
 else
     echo -e "${YELLOW}⚠${NC}  No API key found, using mock mode"
-    echo "   Set ANTHROPIC_API_KEY or NEBIUS_API_KEY for real vision"
+    echo "   Set NEBIUS_API_KEY or ANTHROPIC_API_KEY for real vision"
     PROVIDER="mock"
 fi
 
