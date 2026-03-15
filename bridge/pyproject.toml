@@ -1,0 +1,12 @@
+[project]
+name = "mechdog-bridge"
+version = "0.1.0"
+description = "Python bridge for MechDog ESP32 control"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

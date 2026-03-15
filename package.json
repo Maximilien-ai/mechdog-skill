@@ -1,0 +1,30 @@
+{
+  "name": "mechdog-skill",
+  "version": "1.0.0",
+  "description": "OpenClaw skill for controlling Hiwonder MechDog quadruped robot",
+  "type": "module",
+  "main": "skills/mechdog/index.ts",
+  "scripts": {
+    "dev": "tsx skills/mechdog/index.ts",
+    "build": "tsc",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "openclaw",
+    "robotics",
+    "mechdog",
+    "quadruped"
+  ],
+  "author": "Maximilien",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.11.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
