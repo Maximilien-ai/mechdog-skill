@@ -67,49 +67,69 @@ class MechDogBluetooth:
             return False
 
         try:
+            print(f"Sending command: {command.hex()} ({len(command)} bytes)")
             await self.client.write_gatt_char(MECHDOG_CHAR_UUID, command)
+            print(f"✓ Command sent successfully")
             return True
         except Exception as e:
             print(f"Failed to send command: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
-    # Command encoding functions (need to reverse engineer from Hiwonder app)
+    # Command encoding functions (Hiwonder MechDog servo protocol)
     def encode_move(self, direction: str, duration_ms: int) -> bytes:
         """
         Encode movement command
-
-        Note: These are placeholder implementations.
-        Actual protocol needs to be reverse engineered from Hiwonder app.
+        Protocol: 0x55 0x55 0x08 0x03 0x01 <ACTION_ID> 0x00 0x00
         """
-        # Placeholder - actual encoding depends on MechDog protocol
+        # Movement action IDs (from testing)
         direction_codes = {
-            'forward': b'\x01',
-            'backward': b'\x02',
-            'left': b'\x03',
-            'right': b'\x04',
-            'stop': b'\x00'
+            'forward': 0x01,   # Action 1
+            'backward': 0x02,  # Action 2
+            'left': 0x03,      # Action 3 (left kick/turn)
+            'right': 0x04,     # Action 4 (right kick/turn)
+            'stop': 0x06       # Action 6 (stand)
         }
 
-        code = direction_codes.get(direction, b'\x00')
-        duration_bytes = duration_ms.to_bytes(2, 'big')
+        action_id = direction_codes.get(direction, 0x06)  # Default to stand
 
-        return b'\xFF' + code + duration_bytes + b'\xFE'  # Example framing
+        # Hiwonder servo protocol: 0x55 0x55 0x08 0x03 0x01 <ID> 0x00 0x00
+        return bytes([0x55, 0x55, 0x08, 0x03, 0x01, action_id, 0x00, 0x00])
 
     def encode_action(self, action_name: str) -> bytes:
         """
         Encode action command
+        Protocol: 0x55 0x55 0x08 0x03 0x01 <ACTION_ID> 0x00 0x00
         """
+        # Action IDs (from testing - confirmed working!)
         action_codes = {
-            'sit': b'\x10',
-            'stand': b'\x11',
-            'wave': b'\x12',
-            'shake': b'\x13',
-            'dance': b'\x14',
-            'balance': b'\x15'
+            'forward': 0x01,
+            'backward': 0x02,
+            'left_kick': 0x03,
+            'right_kick': 0x04,
+            'sit': 0x05,
+            'stand': 0x06,
+            'lie_down': 0x07,
+            'stand_2legs': 0x08,
+            'shake_hand': 0x09,
+            'shake': 0x09,  # Alias
+            'bow': 0x0A,
+            'nod': 0x0B,
+            'wave': 0x0C,
+            'stretch': 0x0D,
+            'dance': 0x0E,
+            'pee': 0x0F,
+
+            # Additional common aliases
+            'balance': 0x08,  # 2 legs stand
+            'hello': 0x0C,    # Wave
         }
 
-        code = action_codes.get(action_name, b'\x11')  # Default to stand
-        return b'\xFF\xA0' + code + b'\xFE'  # Example framing
+        action_id = action_codes.get(action_name.lower(), 0x06)  # Default to stand
+
+        # Hiwonder servo protocol
+        return bytes([0x55, 0x55, 0x08, 0x03, 0x01, action_id, 0x00, 0x00])
 
 
 # Global MechDog instance
@@ -160,14 +180,23 @@ def action():
 
     data = request.json
     action_name = data.get('name', 'stand')
+    print(f"\n[ACTION] Received request: {action_name}")
 
     command = mechdog.encode_action(action_name)
+    print(f"[ACTION] Encoded command: {command.hex()}")
 
-    # Run async function in sync context
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    success = loop.run_until_complete(mechdog.send_command(command))
-    loop.close()
+    # Send command synchronously using the BLE client's write method directly
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+
+        loop = asyncio.get_event_loop()
+        success = loop.run_until_complete(mechdog.send_command(command))
+    except Exception as e:
+        print(f"[ACTION] Exception in async execution: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Command execution failed: {str(e)}'}), 500
 
     if success:
         return jsonify({'status': 'ok', 'action': action_name})

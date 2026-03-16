@@ -33,16 +33,18 @@ print_help() {
     echo "Usage: ./scripts/test.sh [COMMAND] [OPTIONS]"
     echo ""
     echo "Commands:"
-    echo "  bridge        Test Python bridge (requires --ip)"
+    echo "  bridge        Test Python bridge (requires --ip or --bluetooth)"
     echo "  skill         Test OpenClaw skill functionality"
-    echo "  demo          Run full demo sequence (requires --ip)"
+    echo "  demo          Run full demo sequence (requires --ip or --bluetooth)"
     echo "  demo-vision   Run advanced vision-guided navigation demo (requires --ip)"
+    echo "  bluetooth     Test Bluetooth connection (requires --bluetooth)"
     echo "  check         Quick health check (no hardware needed)"
     echo "  all           Run all tests that don't require hardware"
     echo "  help          Show this help message"
     echo ""
     echo "Options:"
-    echo "  --ip <IP>   MechDog IP address or localhost:PORT for simulator"
+    echo "  --ip <IP>              MechDog IP address or localhost:PORT for simulator"
+    echo "  --bluetooth <MAC>      MechDog Bluetooth MAC address (for Ultra)"
     echo ""
     echo "Examples:"
     echo "  # Health check (no hardware/simulator needed)"
@@ -53,27 +55,39 @@ print_help() {
     echo "  ./scripts/test.sh demo --ip localhost:3000"
     echo "  ./scripts/test.sh demo-vision --ip localhost:3000"
     echo ""
-    echo "  # Test with real hardware"
+    echo "  # Test with Bluetooth (MechDog Ultra)"
+    echo "  ./scripts/test.sh bluetooth --bluetooth 594FCE37-8C82-3F69-F038-4102A5772742"
+    echo "  ./scripts/test.sh bridge --bluetooth 594FCE37-8C82-3F69-F038-4102A5772742"
+    echo ""
+    echo "  # Test with real hardware (WiFi)"
     echo "  ./scripts/test.sh bridge --ip 192.168.1.100"
     echo "  ./scripts/test.sh demo --ip 192.168.1.100"
-    echo "  ./scripts/test.sh demo-vision --ip 192.168.1.100"
-    echo ""
-    echo "  # Test TypeScript compilation"
-    echo "  ./scripts/test.sh skill"
     echo ""
     echo "Testing Workflow with Simulator:"
     echo "  1. Start simulator:  ./scripts/start.sh"
     echo "  2. Run tests:        ./scripts/test.sh bridge --ip localhost:3000"
     echo "  3. Watch in browser: http://localhost:3000"
     echo "  4. Stop simulator:   ./scripts/stop.sh"
+    echo ""
+    echo "Testing Workflow with Bluetooth:"
+    echo "  1. Scan for device:  bridge/.venv/bin/python bridge/bluetooth_bridge.py --scan"
+    echo "  2. Test connection:  ./scripts/test.sh bluetooth --bluetooth <MAC>"
 }
 
-# Parse IP argument
+# Parse arguments
 MECHDOG_IP=""
+BLUETOOTH_MAC=""
+USE_BLUETOOTH=false
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --ip)
             MECHDOG_IP="$2"
+            shift 2
+            ;;
+        --bluetooth)
+            USE_BLUETOOTH=true
+            BLUETOOTH_MAC="$2"
             shift 2
             ;;
         *)
@@ -223,6 +237,31 @@ test_demo_vision() {
     print_status "Vision demo complete"
 }
 
+test_bluetooth() {
+    print_header "Testing Bluetooth connection"
+
+    if [ -z "$BLUETOOTH_MAC" ]; then
+        print_error "Bluetooth MAC address required. Use --bluetooth <MAC>"
+        print_status "Run scan first: bridge/.venv/bin/python bridge/bluetooth_bridge.py --scan"
+        exit 1
+    fi
+
+    if [ ! -d "bridge/.venv" ]; then
+        print_error "Python venv not found. Run ./setup.sh"
+        exit 1
+    fi
+
+    print_status "Testing connection to MechDog at $BLUETOOTH_MAC"
+
+    # Test by starting bridge (it will connect and show status)
+    print_status "Starting Bluetooth bridge (press Ctrl+C to stop)"
+    bridge/.venv/bin/python bridge/bluetooth_bridge.py \
+        --mac "$BLUETOOTH_MAC" \
+        --port 3001
+
+    print_status "Bluetooth test complete"
+}
+
 test_all() {
     print_header "Running all tests (no hardware required)"
 
@@ -247,6 +286,9 @@ case "$COMMAND" in
         ;;
     demo-vision)
         test_demo_vision
+        ;;
+    bluetooth)
+        test_bluetooth
         ;;
     check)
         test_check
